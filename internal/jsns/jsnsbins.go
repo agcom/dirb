@@ -1,7 +1,7 @@
 package jsns
 
 import (
-	"bs/internal/bins"
+	"bs/bins"
 	"bs/internal/logs"
 	"encoding/json"
 	"io"
@@ -65,7 +65,7 @@ func (jb *jsnsBins) Up(name string, j Jsn) error {
 		_ = w.CloseWithError(err)
 	}()
 
-	err := jb.b.Up(nb, r)
+	err := jb.b.Ow(nb, r)
 	return transBinsError(err)
 }
 

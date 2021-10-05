@@ -1,7 +1,7 @@
 package jsns
 
 import (
-	"bs/internal/bins"
+	"bs/bins"
 	"errors"
 )
 

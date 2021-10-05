@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"bs/internal/bins"
+	"bs/bins"
 	"bs/internal/jsns"
 	"go.uber.org/multierr"
 	"os"
@@ -27,9 +27,9 @@ func NewBins(bks, slrs, byrs bins.Repo) *Repo {
 }
 
 func NewDirs(bks, slrs, byrs string) *Repo {
-	bbks := bins.NewBinsDir(bks)
-	bslrs := bins.NewBinsDir(slrs)
-	bbyrs := bins.NewBinsDir(byrs)
+	bbks := bins.NewDirBins(bks)
+	bslrs := bins.NewDirBins(slrs)
+	bbyrs := bins.NewDirBins(byrs)
 
 	return NewBins(bbks, bslrs, bbyrs)
 }

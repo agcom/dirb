@@ -14,65 +14,45 @@ import (
 // All functions are concurrent safe, unless the underlying file system doesn't support atomicity for common file operations (e.g. create, rename, remove, etc.).
 type Dir string
 
-func (d *Dir) newOrOw(new bool, name string, b io.Reader) (rErr error) {
-	path := d.path(name)
+type ErrTmpRm struct {
+	path  string
+	cause error
+}
 
-	// Create the temp file; acts as a lock and temporary location for incomplete bytes.
-	tmpPath := d.tmpPath(name)
-	tmpFile, err := d.acquireTmpFilePath(tmpPath)
-	if err != nil {
-		return err
+// ErrTmpClose does not mean that the operation failed; as long as the tmp file was removed, the operation succeeded; it's usually a warning sign that something is wrong.
+type ErrTmpClose struct {
+	path  string
+	cause error
+}
+
+func NewErrTmpRm(path string, cause error) *ErrTmpRm {
+	return &ErrTmpRm{
+		path:  path,
+		cause: cause,
 	}
+}
 
-	tmpFileCloseAttempted := false
-	tmpFileRm := false
+func (e *ErrTmpRm) Error() string {
+	return fmt.Sprintf("failed to remove \"%s\"", e.path)
+}
 
-	defer func() {
-		if !tmpFileCloseAttempted {
-			err := tmpFile.Close()
-			tmpFileCloseAttempted = true
-			if err != nil {
-				// Ignore the tmp file close error; should be already closed.
-			}
-		}
+func (e *ErrTmpRm) Unwrap() error {
+	return e.cause
+}
 
-		if !tmpFileRm {
-			err := os.Remove(tmpPath)
-			if err != nil {
-				rErr = multierr.Append(fmt.Errorf("failed to remove \"%s\"", tmpPath), err)
-			} else {
-				tmpFileRm = true
-			}
-		}
-	}()
-
-	if new {
-		err = errIfExists(path)
-	} else {
-		err = errIfNotExist(path)
+func NewErrTmpClose(path string, cause error) *ErrTmpClose {
+	return &ErrTmpClose{
+		path:  path,
+		cause: cause,
 	}
-	if err != nil {
-		return err
-	}
+}
 
-	_, err = io.Copy(tmpFile, b)
-	if err != nil {
-		return multierr.Append(fmt.Errorf("failed to read from the given source, or write to \"%s\"", tmpPath), err)
-	}
+func (e *ErrTmpClose) Error() string {
+	return fmt.Sprintf("failed to close \"%s\"", e.path)
+}
 
-	err = tmpFile.Close()
-	tmpFileCloseAttempted = true
-	if err != nil {
-		// Ignore the tmp file close error; should be already closed.
-	}
-
-	err = os.Rename(tmpPath, path)
-	if err != nil {
-		return multierr.Append(fmt.Errorf("failed to rename (move) \"%s\" to \"%s\"", tmpPath, path), err)
-	}
-	tmpFileRm = true
-
-	return nil
+func (e *ErrTmpClose) Unwrap() error {
+	return e.cause
 }
 
 func (d *Dir) New(name string, b io.Reader) error {
@@ -113,14 +93,14 @@ func (d *Dir) Rm(name string) (rErr error) {
 			err := tmpFile.Close()
 			tmpFileCloseAttempted = true
 			if err != nil {
-				// Ignore the tmp file close error; should be already closed.
+				rErr = multierr.Append(rErr, NewErrTmpClose(tmpPath, err))
 			}
 		}
 
 		if !tmpFileRm {
 			err := os.Remove(tmpPath)
 			if err != nil {
-				rErr = multierr.Append(fmt.Errorf("failed to remove \"%s\"", tmpPath), err)
+				rErr = multierr.Append(rErr, NewErrTmpRm(tmpPath, err))
 			} else {
 				tmpFileRm = true
 			}
@@ -181,6 +161,68 @@ func (d *Dir) AllRepIrreg(rep func(string)) (rNs []string, rErr error) {
 
 func (d *Dir) Dir() string {
 	return string(*d)
+}
+
+func (d *Dir) newOrOw(new bool, name string, b io.Reader) (rErr error) {
+	path := d.path(name)
+
+	// Create the temp file; acts as a lock and temporary location for incomplete bytes.
+	tmpPath := d.tmpPath(name)
+	tmpFile, err := d.acquireTmpFilePath(tmpPath)
+	if err != nil {
+		return err
+	}
+
+	tmpFileCloseAttempted := false
+	tmpFileRm := false
+
+	defer func() {
+		if !tmpFileCloseAttempted {
+			err := tmpFile.Close()
+			tmpFileCloseAttempted = true
+			if err != nil {
+				rErr = multierr.Append(rErr, NewErrTmpClose(tmpPath, err))
+			}
+		}
+
+		if !tmpFileRm {
+			err := os.Remove(tmpPath)
+			if err != nil {
+				rErr = multierr.Combine(rErr, NewErrTmpRm(tmpPath, err))
+			} else {
+				tmpFileRm = true
+			}
+		}
+	}()
+
+	if new {
+		err = errIfExists(path)
+	} else {
+		err = errIfNotExist(path)
+	}
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(tmpFile, b)
+	if err != nil {
+		return multierr.Append(fmt.Errorf("failed to read from the given source, or write to \"%s\"", tmpPath), err)
+	}
+
+	errTmpCloseCause := tmpFile.Close()
+	var errTmpClose *ErrTmpClose
+	tmpFileCloseAttempted = true
+	if errTmpCloseCause != nil {
+		errTmpClose = NewErrTmpClose(tmpPath, errTmpCloseCause)
+	}
+
+	err = os.Rename(tmpPath, path)
+	if err != nil {
+		return multierr.Combine(fmt.Errorf("failed to rename (move) \"%s\" to \"%s\"", tmpPath, path), err, errTmpClose)
+	}
+	tmpFileRm = true
+
+	return errTmpClose
 }
 
 func (d *Dir) acquireTmpFile(name string) (*os.File, error) {

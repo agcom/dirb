@@ -9,12 +9,12 @@ import (
 	"path/filepath"
 )
 
-// DirBins implements Repo that saves each bin in a file in the specified directory.
+// Dir implements Repo that saves each bin in a file in the specified directory.
 // Note that any name argument should be a valid file name (e.g. no filepath.Separator within); otherwise, strange things will happen.
 // All functions are concurrent safe, unless the underlying file system doesn't support atomicity for common file operations (e.g. create, rename, remove, etc.).
-type DirBins string
+type Dir string
 
-func (d *DirBins) New(name string, b io.Reader) (rErr error) {
+func (d *Dir) New(name string, b io.Reader) (rErr error) {
 	path := d.path(name)
 
 	// Create the temp file; acts as a lock and temporary location for incomplete bytes.
@@ -75,7 +75,7 @@ func (d *DirBins) New(name string, b io.Reader) (rErr error) {
 	return nil
 }
 
-func (d *DirBins) Open(name string) (io.ReadCloser, error) {
+func (d *Dir) Open(name string) (io.ReadCloser, error) {
 	path := d.path(name)
 	f, err := os.Open(path)
 	if err != nil {
@@ -89,7 +89,7 @@ func (d *DirBins) Open(name string) (io.ReadCloser, error) {
 	return f, nil
 }
 
-func (d *DirBins) Ow(name string, b io.Reader) (rErr error) {
+func (d *Dir) Ow(name string, b io.Reader) (rErr error) {
 	path := d.path(name)
 
 	// Create the temp file; acts as a lock and temporary location for incomplete bytes.
@@ -150,7 +150,7 @@ func (d *DirBins) Ow(name string, b io.Reader) (rErr error) {
 	return nil
 }
 
-func (d *DirBins) Rm(name string) (rErr error) {
+func (d *Dir) Rm(name string) (rErr error) {
 	// Create the temp file; acts as a lock.
 	tmpPath := d.tmpPath(name)
 	tmpFile, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_EXCL|os.O_RDONLY, 0660)
@@ -197,14 +197,14 @@ func (d *DirBins) Rm(name string) (rErr error) {
 	return nil
 }
 
-func (d *DirBins) All() (rNs []string, rErr error) {
+func (d *Dir) All() (rNs []string, rErr error) {
 	return d.AllRepIrreg(func(string) {
 		// No op; ignore irregular files.
 	})
 }
 
 // AllRepIrreg is the same as All but reports irregular files through the given function.
-func (d *DirBins) AllRepIrreg(rep func(string)) (rNs []string, rErr error) {
+func (d *Dir) AllRepIrreg(rep func(string)) (rNs []string, rErr error) {
 	dPath := d.Dir()
 	f, err := os.Open(dPath)
 	if err != nil {
@@ -236,15 +236,15 @@ func (d *DirBins) AllRepIrreg(rep func(string)) (rNs []string, rErr error) {
 	return ns, nil
 }
 
-func (d *DirBins) Dir() string {
+func (d *Dir) Dir() string {
 	return string(*d)
 }
 
-func (d *DirBins) path(name string) string {
+func (d *Dir) path(name string) string {
 	return filepath.Join(d.Dir(), name)
 }
 
-func (d *DirBins) tmpPath(name string) string {
+func (d *Dir) tmpPath(name string) string {
 	return filepath.Join(d.Dir(), "."+name+".tmp")
 }
 

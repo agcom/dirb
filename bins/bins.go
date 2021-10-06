@@ -32,6 +32,6 @@ type Repo interface {
 }
 
 func NewDirBins(d string) Repo {
-	db := DirBins(filepath.Clean(d))
+	db := Dir(filepath.Clean(d))
 	return &db
 }

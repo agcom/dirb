@@ -14,7 +14,7 @@ import (
 // All functions are concurrent safe, unless the underlying file system doesn't support atomicity for common file operations (e.g. create, rename, remove, etc.).
 type Dir string
 
-func (d *Dir) New(name string, b io.Reader) (rErr error) {
+func (d *Dir) newOrOw(new bool, name string, b io.Reader) (rErr error) {
 	path := d.path(name)
 
 	// Create the temp file; acts as a lock and temporary location for incomplete bytes.
@@ -50,12 +50,16 @@ func (d *Dir) New(name string, b io.Reader) (rErr error) {
 		}
 	}()
 
-	err = errIfExists(path)
+	if new {
+		err = errIfExists(path)
+	} else {
+		err = errIfNotExist(path)
+	}
 	if err != nil {
 		return err
 	}
 
-	_, err = tmpFile.ReadFrom(b)
+	_, err = io.Copy(tmpFile, b)
 	if err != nil {
 		return multierr.Append(fmt.Errorf("failed to read from the given source, or write to \"%s\"", tmpPath), err)
 	}
@@ -73,6 +77,10 @@ func (d *Dir) New(name string, b io.Reader) (rErr error) {
 	tmpFileRm = true
 
 	return nil
+}
+
+func (d *Dir) New(name string, b io.Reader) error {
+	return d.newOrOw(true, name, b)
 }
 
 func (d *Dir) Open(name string) (io.ReadCloser, error) {
@@ -90,64 +98,7 @@ func (d *Dir) Open(name string) (io.ReadCloser, error) {
 }
 
 func (d *Dir) Ow(name string, b io.Reader) (rErr error) {
-	path := d.path(name)
-
-	// Create the temp file; acts as a lock and temporary location for incomplete bytes.
-	tmpPath := d.tmpPath(name)
-	tmpFile, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0660)
-	if err != nil {
-		if errors.Is(err, os.ErrExist) {
-			return ErrBusy
-		} else {
-			return multierr.Append(fmt.Errorf("failed to open or create \"%s\"", tmpPath), err)
-		}
-	}
-
-	tmpFileCloseAttempted := false
-	tmpFileRm := false
-
-	defer func() {
-		if !tmpFileCloseAttempted {
-			err := tmpFile.Close()
-			tmpFileCloseAttempted = true
-			if err != nil {
-				// Ignore the tmp file close error; should be already closed.
-			}
-		}
-
-		if !tmpFileRm {
-			err := os.Remove(tmpPath)
-			if err != nil {
-				rErr = multierr.Append(fmt.Errorf("failed to remove \"%s\"", tmpPath), err)
-			} else {
-				tmpFileRm = true
-			}
-		}
-	}()
-
-	err = errIfNotExist(path)
-	if err != nil {
-		return err
-	}
-
-	_, err = tmpFile.ReadFrom(b)
-	if err != nil {
-		return multierr.Append(fmt.Errorf("failed to read from the given source, or write to \"%s\"", tmpPath), err)
-	}
-
-	err = tmpFile.Close()
-	tmpFileCloseAttempted = true
-	if err != nil {
-		// Ignore the tmp file close error; should be already closed.
-	}
-
-	err = os.Rename(tmpPath, path)
-	if err != nil {
-		return multierr.Append(fmt.Errorf("failed to rename (move) \"%s\" to \"%s\"", tmpPath, path), err)
-	}
-	tmpFileRm = true
-
-	return nil
+	return d.newOrOw(false, name, b)
 }
 
 func (d *Dir) Rm(name string) (rErr error) {

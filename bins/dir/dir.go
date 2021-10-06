@@ -229,8 +229,8 @@ func (d *Dir) newOrOw(new bool, name string, b io.Reader) (rErr error) {
 	}
 
 	errTmpCloseCause := tmpFile.Close()
-	var errTmpClose *ErrTmpClose
 	tmpFileCloseAttempted = true
+	var errTmpClose error
 	if errTmpCloseCause != nil {
 		errTmpClose = NewErrTmpClose(tmpPath, errTmpCloseCause)
 	}

@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"bs/bins"
-	"bs/jsns"
+	"github.com/agcom/bs/bins"
+	"github.com/agcom/bs/jsns"
 	"go.uber.org/multierr"
 	"os"
 	"path/filepath"

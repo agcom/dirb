@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"bs/internal"
-	"bs/internal/cmd/get"
-	g "bs/internal/cmd/global"
-	"bs/internal/cmd/new"
-	ow "bs/internal/cmd/ow"
-	rm "bs/internal/cmd/rm"
-	"bs/internal/logs"
+	"github.com/agcom/bs/internal"
+	"github.com/agcom/bs/internal/cmd/get"
+	g "github.com/agcom/bs/internal/cmd/global"
+	"github.com/agcom/bs/internal/cmd/new"
+	ow "github.com/agcom/bs/internal/cmd/ow"
+	rm "github.com/agcom/bs/internal/cmd/rm"
+	"github.com/agcom/bs/internal/logs"
 	"github.com/spf13/cobra"
 )
 

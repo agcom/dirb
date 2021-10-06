@@ -1,9 +1,9 @@
 package jsns
 
 import (
-	"bs/bins"
-	"bs/internal/logs"
 	"encoding/json"
+	"github.com/agcom/bs/bins"
+	"github.com/agcom/bs/internal/logs"
 	"io"
 	"path/filepath"
 )

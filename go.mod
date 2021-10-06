@@ -1,4 +1,4 @@
-module bs
+module github.com/agcom/bs
 
 go 1.17
 

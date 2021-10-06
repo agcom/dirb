@@ -1,7 +1,7 @@
 package global
 
 import (
-	bs "bs/internal"
+	bs "github.com/agcom/bs/internal"
 )
 
 var R bs.Repo

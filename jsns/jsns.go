@@ -1,8 +1,8 @@
 package jsns
 
 import (
-	"bs/bins"
 	"errors"
+	"github.com/agcom/bs/bins"
 )
 
 var ErrNotExist = errors.New("the jsn does not exist")

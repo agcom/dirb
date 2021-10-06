@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"bs/jsns"
 	"encoding/json"
+	"github.com/agcom/bs/jsns"
 	"io"
 )
 

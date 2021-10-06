@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bs/internal/cmd"
+	"github.com/agcom/bs/internal/cmd"
 )
 
 func main() {

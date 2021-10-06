@@ -1,8 +1,8 @@
 package get
 
 import (
-	g "bs/internal/cmd/global"
-	"bs/internal/logs"
+	g "github.com/agcom/bs/internal/cmd/global"
+	"github.com/agcom/bs/internal/logs"
 	"github.com/spf13/cobra"
 	"path/filepath"
 	"strings"

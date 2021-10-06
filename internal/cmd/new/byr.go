@@ -1,11 +1,11 @@
 package new
 
 import (
-	g "bs/internal/cmd/global"
-	"bs/internal/cmd/utils"
-	"bs/internal/logs"
-	"bs/jsns"
 	"fmt"
+	g "github.com/agcom/bs/internal/cmd/global"
+	"github.com/agcom/bs/internal/cmd/utils"
+	"github.com/agcom/bs/internal/logs"
+	"github.com/agcom/bs/jsns"
 	"github.com/spf13/cobra"
 )
 

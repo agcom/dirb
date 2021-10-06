@@ -4,6 +4,7 @@ import (
 	"github.com/agcom/bs/bins"
 	bdir "github.com/agcom/bs/bins/dir"
 	"github.com/agcom/bs/jsns"
+	jbins "github.com/agcom/bs/jsns/bins"
 	"go.uber.org/multierr"
 	"os"
 	"path/filepath"
@@ -20,9 +21,9 @@ func NewJsns(bks, slrs, byrs jsns.Repo) *Repo {
 }
 
 func NewBins(bks, slrs, byrs bins.Repo) *Repo {
-	jbks := jsns.NewBins(bks)
-	jslrs := jsns.NewBins(slrs)
-	jbyrs := jsns.NewBins(byrs)
+	jbks := jbins.New(bks)
+	jslrs := jbins.New(slrs)
+	jbyrs := jbins.New(byrs)
 
 	return NewJsns(jbks, jslrs, jbyrs)
 }

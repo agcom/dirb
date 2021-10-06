@@ -1,4 +1,4 @@
-package jsns
+package bins
 
 func mergeJsnObjRec(j1, j2 interface{}) interface{} {
 	if j1m, j1ok := j1.(map[string]interface{}); j1ok {
@@ -31,13 +31,13 @@ func mergeMapsRec(m1, m2 map[string]interface{}) map[string]interface{} {
 	return r
 }
 
-func (jb *Bins) Pch(name string, j interface{}) error {
-	jo, err := jb.Get(name)
+func (b *Bins) Pch(name string, j interface{}) error {
+	jo, err := b.Get(name)
 	if err != nil {
 		return err
 	}
 
 	jn := mergeJsnObjRec(jo, j)
 
-	return jb.NewUp(name, jn)
+	return b.NewUp(name, jn)
 }

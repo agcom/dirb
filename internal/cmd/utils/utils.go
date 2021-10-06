@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"bs/internal/jsns"
+	"bs/jsns"
 	"encoding/json"
 	"io"
 )

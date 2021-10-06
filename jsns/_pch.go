@@ -31,7 +31,7 @@ func mergeMapsRec(m1, m2 map[string]interface{}) map[string]interface{} {
 	return r
 }
 
-func (jb *jsnsBins) Pch(name string, j interface{}) error {
+func (jb *Bins) Pch(name string, j interface{}) error {
 	jo, err := jb.Get(name)
 	if err != nil {
 		return err

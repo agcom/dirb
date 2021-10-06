@@ -29,7 +29,7 @@ var cmdSlr = &cobra.Command{
 			logs.Fatalf("invalid json string; %v.", err)
 		}
 
-		err = g.R.Slrs.Up(name, j)
+		err = g.R.Slrs.Ow(name, j)
 		if err != nil {
 			logs.Fatal(err)
 		}

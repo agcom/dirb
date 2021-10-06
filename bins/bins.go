@@ -31,7 +31,7 @@ type Repo interface {
 	All() ([]string, error)
 }
 
-func NewDirBins(d string) Repo {
+func NewDir(d string) *Dir {
 	db := Dir(filepath.Clean(d))
 	return &db
 }

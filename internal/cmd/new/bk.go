@@ -3,8 +3,8 @@ package new
 import (
 	g "bs/internal/cmd/global"
 	"bs/internal/cmd/utils"
-	"bs/internal/jsns"
 	"bs/internal/logs"
+	"bs/jsns"
 	"fmt"
 	"github.com/spf13/cobra"
 )

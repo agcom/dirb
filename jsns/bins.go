@@ -1,18 +1,18 @@
 package jsns
 
 import (
-	"bs/internal/bins"
+	"bs/bins"
 	"bs/internal/logs"
 	"encoding/json"
 	"io"
 	"path/filepath"
 )
 
-type jsnsBins struct {
-	b bins.Repo
+type Bins struct {
+	B bins.Repo
 }
 
-func (jb *jsnsBins) New(name string, j Jsn) error {
+func (jb *Bins) New(name string, j Jsn) error {
 	nb := name + ".json"
 
 	r, w := io.Pipe()
@@ -24,14 +24,14 @@ func (jb *jsnsBins) New(name string, j Jsn) error {
 		_ = w.CloseWithError(err)
 	}()
 
-	err := jb.b.New(nb, r)
+	err := jb.B.New(nb, r)
 	return transBinsError(err)
 }
 
-func (jb *jsnsBins) Get(name string) (Jsn, error) {
+func (jb *Bins) Get(name string) (Jsn, error) {
 	nb := name + ".json"
 
-	r, err := jb.b.Open(nb)
+	r, err := jb.B.Open(nb)
 	if err != nil {
 		return nil, transBinsError(err)
 	}
@@ -53,7 +53,7 @@ func (jb *jsnsBins) Get(name string) (Jsn, error) {
 	}
 }
 
-func (jb *jsnsBins) Up(name string, j Jsn) error {
+func (jb *Bins) Ow(name string, j Jsn) error {
 	nb := name + ".json"
 
 	r, w := io.Pipe()
@@ -65,18 +65,18 @@ func (jb *jsnsBins) Up(name string, j Jsn) error {
 		_ = w.CloseWithError(err)
 	}()
 
-	err := jb.b.Up(nb, r)
+	err := jb.B.Ow(nb, r)
 	return transBinsError(err)
 }
 
-func (jb *jsnsBins) Rm(name string) error {
+func (jb *Bins) Rm(name string) error {
 	nb := name + ".json"
-	err := jb.b.Rm(nb)
+	err := jb.B.Rm(nb)
 	return transBinsError(err)
 }
 
-func (jb *jsnsBins) All() ([]string, error) {
-	ns, err := jb.b.All()
+func (jb *Bins) All() ([]string, error) {
+	ns, err := jb.B.All()
 	if err != nil {
 		return nil, err
 	}

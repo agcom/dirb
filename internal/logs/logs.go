@@ -19,7 +19,7 @@ func Lvl(lvl string, v interface{}) {
 }
 
 func Errorf(format string, v ...interface{}) {
-	Lvlf("ERROR", format, v...)
+	Lvlf("Error", format, v...)
 }
 
 func Error(v interface{}) {
@@ -27,16 +27,20 @@ func Error(v interface{}) {
 }
 
 func Warnf(format string, v ...interface{}) {
-	Lvlf("WARN", format, v...)
+	Lvlf("Warning", format, v...)
 }
 
 func Warn(v interface{}) {
 	Warnf("%v", v)
 }
 
-func Fatalf(format string, v ...interface{}) {
+func FatalfCode(code int, format string, v ...interface{}) {
 	Errorf(format, v...)
-	os.Exit(1)
+	os.Exit(code)
+}
+
+func Fatalf(format string, v ...interface{}) {
+	FatalfCode(1, format, v...)
 }
 
 func Fatal(v interface{}) {

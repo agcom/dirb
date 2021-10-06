@@ -104,7 +104,7 @@ func (d *Dir) Ow(name string, b io.Reader) (rErr error) {
 func (d *Dir) Rm(name string) (rErr error) {
 	// Create the temp file; acts as a lock.
 	tmpPath := d.tmpPath(name)
-	tmpFile, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_EXCL|os.O_RDONLY, 0660)
+	tmpFile, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0660)
 	if err != nil {
 		if errors.Is(err, os.ErrExist) {
 			return ErrBusy

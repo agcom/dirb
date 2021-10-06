@@ -78,6 +78,14 @@ func (d *Dir) Ow(name string, b io.Reader) error {
 }
 
 func (d *Dir) Rm(name string) (rErr error) {
+	path := d.path(name)
+
+	// Early existence check (not vital)
+	err := errIfNotExist(path)
+	if err != nil {
+		return err
+	}
+
 	// Create the temp file; acts as a lock.
 	tmpPath := d.tmpPath(name)
 	tmpFile, err := d.acquireTmpFilePath(tmpPath)
@@ -107,7 +115,6 @@ func (d *Dir) Rm(name string) (rErr error) {
 		}
 	}()
 
-	path := d.path(name)
 	err = os.Remove(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -165,6 +172,17 @@ func (d *Dir) Dir() string {
 
 func (d *Dir) newOrOw(new bool, name string, b io.Reader) (rErr error) {
 	path := d.path(name)
+
+	// Early existence check (not vital)
+	var err error
+	if new {
+		err = errIfExists(path)
+	} else {
+		err = errIfNotExist(path)
+	}
+	if err != nil {
+		return err
+	}
 
 	// Create the temp file; acts as a lock and temporary location for incomplete bytes.
 	tmpPath := d.tmpPath(name)

@@ -91,7 +91,7 @@ func NewErrBinClose(name string, cause error) *ErrBinClose {
 }
 
 func (e *ErrBinClose) Error() string {
-	return fmt.Sprintf("failed to close bin \"%s\"; %v", e.name, e.cause)
+	return fmt.Sprintf("failed to close binary \"%s\"; %v", e.name, e.cause)
 }
 
 func (e *ErrBinClose) Unwrap() error {

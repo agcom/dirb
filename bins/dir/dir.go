@@ -117,7 +117,7 @@ func (d *Dir) All() (rNs []string, rErr error) {
 		if e.Type().IsRegular() {
 			rNs = append(rNs, n)
 		} else {
-			rErr = multierr.Append(rErr, fmt.Errorf("irregular file \"%s\" in a bins data directory", e.Name()))
+			rErr = multierr.Append(rErr, fmt.Errorf("irregular file \"%s\" in a binarys data directory", e.Name()))
 		}
 	}
 
@@ -139,7 +139,7 @@ type ErrTmpClose struct {
 	cause error
 }
 
-var ErrBusy = errors.New("the bin is already undergoing a change")
+var ErrBusy = errors.New("the binary is already undergoing a change")
 
 func NewErrTmpRm(path string, cause error) *ErrTmpRm {
 	return &ErrTmpRm{

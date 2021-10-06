@@ -11,6 +11,6 @@ var Cmd = &cobra.Command{
 }
 
 func init() {
-	Cmd.PersistentFlags().BoolVarP(&pretty, "pretty", "p", true, "pretty JSON output")
+	Cmd.PersistentFlags().BoolVarP(&pretty, "pretty", "p", true, "pretty json output")
 	Cmd.AddCommand(cmdBk, cmdSlr, cmdByr)
 }

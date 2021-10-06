@@ -4,8 +4,8 @@ import (
 	"errors"
 )
 
-var ErrNotExist = errors.New("the jsn does not exist")
-var ErrExists = errors.New("the jsn already exists")
+var ErrNotExist = errors.New("the json does not exist")
+var ErrExists = errors.New("the json already exists")
 
 type Jsn = interface{}
 

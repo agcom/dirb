@@ -48,7 +48,7 @@ func (j *Jsns) All() ([]string, error) {
 	return ns, transJsnsError(err)
 }
 
-var ErrJsnButNotJsnobj = errors.New("the jsnobj is jsn but not a jsnobj")
+var ErrJsnButNotJsnobj = errors.New("the json is not a json object")
 
 func transJsnsError(err error) error {
 	switch err {

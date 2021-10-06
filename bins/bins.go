@@ -5,8 +5,8 @@ import (
 	"io"
 )
 
-var ErrNotExist = errors.New("the bin does not exist")
-var ErrExists = errors.New("the bin already exists")
+var ErrNotExist = errors.New("the binary does not exist")
+var ErrExists = errors.New("the binary already exists")
 
 // Repo ; bins repository.
 // Each bin is identified by a unique name (a string).

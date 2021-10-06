@@ -111,14 +111,19 @@ func newCmd(args []string) {
 	}
 
 	entityName := args[0]
-	jos := args[1]
+	s := args[1]
 
 	r, ok := repoLkp[entityName]
 	if !ok {
 		FatalfCode(2, "entity \"%s\" isn't defined", entityName)
 	}
 
-	jo, err := strToJsnobj(jos)
+	var jo jsnobjs.Jsnobj
+	if s == "-" {
+		jo, err = readerToJsnobj(os.Stdin)
+	} else {
+		jo, err = strToJsnobj(s)
+	}
 	if err != nil {
 		Fatal(err)
 	}
@@ -184,14 +189,19 @@ func owCmd(args []string) {
 
 	entityName := args[0]
 	name := args[1]
-	jos := args[2]
+	s := args[2]
 
 	r, ok := repoLkp[entityName]
 	if !ok {
 		FatalfCode(2, "entity \"%s\" isn't defined", entityName)
 	}
 
-	jo, err := strToJsnobj(jos)
+	var jo jsnobjs.Jsnobj
+	if s == "-" {
+		jo, err = readerToJsnobj(os.Stdin)
+	} else {
+		jo, err = strToJsnobj(s)
+	}
 	if err != nil {
 		Fatal(err)
 	}
@@ -288,4 +298,18 @@ func jsnobjToStr(j jsnobjs.Jsnobj, indent bool) (string, error) {
 	}
 
 	return string(b), nil
+}
+
+func readerToJsnobj(r io.Reader) (jsnobjs.Jsnobj, error) {
+	dec := json.NewDecoder(r)
+	var j jsns.Jsn
+	err := dec.Decode(&j)
+	if err != nil {
+		return nil, err
+	}
+	if jo, ok := j.(jsnobjs.Jsnobj); ok {
+		return jo, nil
+	} else {
+		return nil, jsnButNotJsnobj
+	}
 }

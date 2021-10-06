@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"go.uber.org/multierr"
 	"math"
+	"strings"
 )
 
 func NewJsnGenName(r Repo, j Jsn) (string, error) {
@@ -47,4 +49,49 @@ func genNameLen(l int) string {
 	}
 
 	return base64.RawURLEncoding.EncodeToString(rnd)[0:l]
+}
+
+type jsnExtMid struct {
+	r Repo
+}
+
+func JsnExtMid(r Repo) Repo {
+	return &jsnExtMid{r}
+}
+
+func (jem *jsnExtMid) New(name string, j Jsn) error {
+	name = name + ".json"
+	return jem.r.New(name, j)
+}
+
+func (jem *jsnExtMid) Get(name string) (Jsn, error) {
+	name = name + ".json"
+	return jem.r.Get(name)
+}
+
+func (jem *jsnExtMid) Ow(name string, j Jsn) error {
+	name = name + ".json"
+	return jem.r.Ow(name, j)
+}
+
+func (jem *jsnExtMid) Rm(name string) error {
+	name = name + ".json"
+	return jem.r.Rm(name)
+}
+
+func (jem *jsnExtMid) All() ([]string, error) {
+	ns, err := jem.r.All()
+	jns := make([]string, len(ns))[:0]
+	for _, n := range ns {
+		exti := strings.LastIndexByte(n, '.')
+		ext := n[exti+1:]
+		jn := n[:exti]
+		if ext == "json" {
+			jns = append(jns, jn)
+		} else {
+			err = multierr.Append(err, fmt.Errorf("binary \"%s\" is without \".json\" extension in a jsons repository", n))
+		}
+	}
+
+	return jns, err
 }

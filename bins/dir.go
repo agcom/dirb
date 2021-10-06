@@ -19,13 +19,9 @@ func (d *Dir) newOrOw(new bool, name string, b io.Reader) (rErr error) {
 
 	// Create the temp file; acts as a lock and temporary location for incomplete bytes.
 	tmpPath := d.tmpPath(name)
-	tmpFile, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0660)
+	tmpFile, err := d.acquireTmpFilePath(tmpPath)
 	if err != nil {
-		if errors.Is(err, os.ErrExist) {
-			return ErrBusy
-		} else {
-			return multierr.Append(fmt.Errorf("failed to open or create \"%s\"", tmpPath), err)
-		}
+		return err
 	}
 
 	tmpFileCloseAttempted := false
@@ -97,20 +93,16 @@ func (d *Dir) Open(name string) (io.ReadCloser, error) {
 	return f, nil
 }
 
-func (d *Dir) Ow(name string, b io.Reader) (rErr error) {
+func (d *Dir) Ow(name string, b io.Reader) error {
 	return d.newOrOw(false, name, b)
 }
 
 func (d *Dir) Rm(name string) (rErr error) {
 	// Create the temp file; acts as a lock.
 	tmpPath := d.tmpPath(name)
-	tmpFile, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0660)
+	tmpFile, err := d.acquireTmpFilePath(tmpPath)
 	if err != nil {
-		if errors.Is(err, os.ErrExist) {
-			return ErrBusy
-		} else {
-			return multierr.Append(fmt.Errorf("failed to open or create \"%s\"", tmpPath), err)
-		}
+		return err
 	}
 
 	tmpFileCloseAttempted := false
@@ -189,6 +181,33 @@ func (d *Dir) AllRepIrreg(rep func(string)) (rNs []string, rErr error) {
 
 func (d *Dir) Dir() string {
 	return string(*d)
+}
+
+func (d *Dir) acquireTmpFile(name string) (*os.File, error) {
+	tmpPath := d.tmpPath(name)
+	tmpFile, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0660)
+	if err != nil {
+		if errors.Is(err, os.ErrExist) {
+			return nil, ErrBusy
+		} else {
+			return nil, multierr.Append(fmt.Errorf("failed to open or create \"%s\"", tmpPath), err)
+		}
+	}
+
+	return tmpFile, nil
+}
+
+func (d *Dir) acquireTmpFilePath(path string) (*os.File, error) {
+	tmpFile, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0660)
+	if err != nil {
+		if errors.Is(err, os.ErrExist) {
+			return nil, ErrBusy
+		} else {
+			return nil, multierr.Append(fmt.Errorf("failed to open or create \"%s\"", path), err)
+		}
+	}
+
+	return tmpFile, nil
 }
 
 func (d *Dir) path(name string) string {

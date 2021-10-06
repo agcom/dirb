@@ -1,9 +1,8 @@
-package dir
+package bins
 
 import (
 	"errors"
 	"fmt"
-	"github.com/agcom/bs/bins"
 	"go.uber.org/multierr"
 	"io"
 	"os"
@@ -15,10 +14,18 @@ import (
 // All functions are concurrent safe, unless the underlying file system doesn't support atomicity for common file operations (e.g. create, rename, remove, etc.).
 type Dir string
 
-func New(d string) *Dir {
-	db := Dir(filepath.Clean(d))
-	return &db
+type ErrTmpRm struct {
+	path  string
+	cause error
 }
+
+// ErrTmpClose does not mean that the operation failed; as long as the tmp file was removed, the operation succeeded; it's usually a warning sign that something is wrong.
+type ErrTmpClose struct {
+	path  string
+	cause error
+}
+
+var ErrBusy = errors.New("the binary is already undergoing a change")
 
 func (d *Dir) New(name string, b io.Reader) error {
 	return d.newOrOw(true, name, b)
@@ -29,7 +36,7 @@ func (d *Dir) Open(name string) (io.ReadCloser, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return nil, bins.ErrNotExist
+			return nil, ErrNotExist
 		} else {
 			return nil, fmt.Errorf("failed to open \"%s\"; %w", path, err)
 		}
@@ -83,7 +90,7 @@ func (d *Dir) Rm(name string) (rErr error) {
 	err = os.Remove(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return bins.ErrNotExist
+			return ErrNotExist
 		} else {
 			return fmt.Errorf("failed to remove \"%s\"; %w", path, err)
 		}
@@ -126,49 +133,6 @@ func (d *Dir) All() (rNs []string, rErr error) {
 
 func (d *Dir) Dir() string {
 	return string(*d)
-}
-
-type ErrTmpRm struct {
-	path  string
-	cause error
-}
-
-// ErrTmpClose does not mean that the operation failed; as long as the tmp file was removed, the operation succeeded; it's usually a warning sign that something is wrong.
-type ErrTmpClose struct {
-	path  string
-	cause error
-}
-
-var ErrBusy = errors.New("the binary is already undergoing a change")
-
-func NewErrTmpRm(path string, cause error) *ErrTmpRm {
-	return &ErrTmpRm{
-		path:  path,
-		cause: cause,
-	}
-}
-
-func (e *ErrTmpRm) Error() string {
-	return fmt.Sprintf("failed to remove \"%s\"; %v", e.path, e.cause)
-}
-
-func (e *ErrTmpRm) Unwrap() error {
-	return e.cause
-}
-
-func NewErrTmpClose(path string, cause error) *ErrTmpClose {
-	return &ErrTmpClose{
-		path:  path,
-		cause: cause,
-	}
-}
-
-func (e *ErrTmpClose) Error() string {
-	return fmt.Sprintf("failed to close \"%s\"; %v", e.path, e.cause)
-}
-
-func (e *ErrTmpClose) Unwrap() error {
-	return e.cause
 }
 
 func (d *Dir) newOrOw(new bool, name string, b io.Reader) (rErr error) {
@@ -244,6 +208,36 @@ func (d *Dir) newOrOw(new bool, name string, b io.Reader) (rErr error) {
 	return errTmpClose
 }
 
+func NewErrTmpRm(path string, cause error) *ErrTmpRm {
+	return &ErrTmpRm{
+		path:  path,
+		cause: cause,
+	}
+}
+
+func (e *ErrTmpRm) Error() string {
+	return fmt.Sprintf("failed to remove \"%s\"; %v", e.path, e.cause)
+}
+
+func (e *ErrTmpRm) Unwrap() error {
+	return e.cause
+}
+
+func NewErrTmpClose(path string, cause error) *ErrTmpClose {
+	return &ErrTmpClose{
+		path:  path,
+		cause: cause,
+	}
+}
+
+func (e *ErrTmpClose) Error() string {
+	return fmt.Sprintf("failed to close \"%s\"; %v", e.path, e.cause)
+}
+
+func (e *ErrTmpClose) Unwrap() error {
+	return e.cause
+}
+
 func (d *Dir) acquireTmpFile(name string) (*os.File, error) {
 	tmpPath := d.tmpPath(name)
 	return d.acquireTmpFilePath(tmpPath)
@@ -277,7 +271,7 @@ func errIfExists(path string) error {
 	}
 
 	if ex {
-		return bins.ErrExists
+		return ErrExists
 	} else {
 		return nil
 	}
@@ -290,7 +284,7 @@ func errIfNotExist(path string) error {
 	}
 
 	if !ex {
-		return bins.ErrNotExist
+		return ErrNotExist
 	} else {
 		return nil
 	}

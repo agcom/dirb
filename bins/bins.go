@@ -3,6 +3,7 @@ package bins
 import (
 	"errors"
 	"io"
+	"path/filepath"
 )
 
 var ErrNotExist = errors.New("the binary does not exist")
@@ -26,4 +27,9 @@ type Repo interface {
 	Rm(name string) error
 	// All ; return all available bins' names.
 	All() ([]string, error)
+}
+
+func NewDir(d string) *Dir {
+	db := Dir(filepath.Clean(d))
+	return &db
 }

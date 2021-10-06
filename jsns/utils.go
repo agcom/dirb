@@ -37,6 +37,33 @@ func NewJsnGenNameCustom(r Repo, j Jsn, minNameLen, maxNameLen, triesPerLen int)
 	return "", errors.New(fmt.Sprintf("finding a unique name failed after %v tries", (maxNameLen-minNameLen+1)*triesPerLen))
 }
 
+func NewJsnObjGenName(ro RepoObj, jo JsnObj) (string, error) {
+	return NewJsnObjGenNameCustom(ro, jo, 7, 21, 10000)
+}
+
+func NewJsnObjGenNameCustom(ro RepoObj, jo JsnObj, minNameLen, maxNameLen, triesPerLen int) (string, error) {
+	if minNameLen > maxNameLen {
+		panic("min name len should be less than or equal to max name len")
+	}
+
+	name := ""
+
+	for l := minNameLen; l <= maxNameLen; l++ {
+		for i := 0; i < triesPerLen; i++ {
+			name = genNameLen(l)
+
+			err := ro.New(name, jo)
+			if err != nil && errors.Is(err, ErrExists) {
+				continue
+			}
+
+			return name, nil
+		}
+	}
+
+	return "", errors.New(fmt.Sprintf("finding a unique name failed after %v tries", (maxNameLen-minNameLen+1)*triesPerLen))
+}
+
 func genNameLen(l int) string {
 	if l <= 0 {
 		panic("name length shouldn't be negative nor zero")
@@ -94,4 +121,57 @@ func (jem *jsnExtMid) All() ([]string, error) {
 	}
 
 	return jns, err
+}
+
+func WeakUpJsn(r Repo, name string, j Jsn) error {
+	jOld, err := r.Get(name)
+	if err != nil {
+		return err
+	}
+
+	jNew := mergeJsnRec(jOld, j)
+
+	return r.Ow(name, jNew)
+}
+
+func WeakUpJsnObj(r RepoObj, name string, j JsnObj) error {
+	jOld, err := r.Get(name)
+	if err != nil {
+		return err
+	}
+
+	jNew := mergeJsnObjRec(jOld, j)
+
+	return r.Ow(name, jNew)
+}
+
+func mergeJsnRec(j1, j2 Jsn) Jsn {
+	if j1jo, ok := j1.(JsnObj); ok {
+		if j2jo, ok := j2.(JsnObj); ok {
+			j2 = mergeJsnObjRec(j1jo, j2jo)
+		}
+	}
+
+	return j2
+}
+
+func mergeJsnObjRec(j1, j2 JsnObj) JsnObj {
+	r := make(JsnObj, len(j1))
+	for k, v1 := range j1 {
+		r[k] = v1
+	}
+
+	for k, v2 := range j2 {
+		if vr, ok := r[k]; ok {
+			if vrjo, ok := vr.(JsnObj); ok {
+				if v2jo, ok := v2.(JsnObj); ok {
+					v2 = mergeJsnObjRec(vrjo, v2jo)
+				}
+			}
+		}
+
+		r[k] = v2
+	}
+
+	return r
 }

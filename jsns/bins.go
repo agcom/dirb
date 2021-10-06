@@ -1,10 +1,9 @@
-package bins
+package jsns
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/agcom/bs/bins"
-	"github.com/agcom/bs/jsns"
 	"go.uber.org/multierr"
 	"io"
 )
@@ -13,11 +12,12 @@ type Bins struct {
 	B bins.Repo
 }
 
-func New(b bins.Repo) *Bins {
-	return &Bins{b}
+type ErrBinClose struct {
+	name  string
+	cause error
 }
 
-func (b *Bins) New(name string, j jsns.Jsn) error {
+func (b *Bins) New(name string, j Jsn) error {
 	r, w := io.Pipe()
 
 	enc := json.NewEncoder(w)
@@ -31,7 +31,7 @@ func (b *Bins) New(name string, j jsns.Jsn) error {
 	return transBinsError(err)
 }
 
-func (b *Bins) Get(name string) (rj jsns.Jsn, rErr error) {
+func (b *Bins) Get(name string) (rj Jsn, rErr error) {
 	r, err := b.B.Open(name)
 	if err != nil {
 		return nil, transBinsError(err)
@@ -44,7 +44,7 @@ func (b *Bins) Get(name string) (rj jsns.Jsn, rErr error) {
 	}()
 
 	dec := json.NewDecoder(r)
-	var j jsns.Jsn
+	var j Jsn
 	err = dec.Decode(&j)
 
 	if err != nil {
@@ -54,7 +54,7 @@ func (b *Bins) Get(name string) (rj jsns.Jsn, rErr error) {
 	}
 }
 
-func (b *Bins) Ow(name string, j jsns.Jsn) error {
+func (b *Bins) Ow(name string, j Jsn) error {
 	r, w := io.Pipe()
 
 	enc := json.NewEncoder(w)
@@ -78,11 +78,6 @@ func (b *Bins) All() ([]string, error) {
 	return ns, transBinsError(err)
 }
 
-type ErrBinClose struct {
-	name  string
-	cause error
-}
-
 func NewErrBinClose(name string, cause error) *ErrBinClose {
 	return &ErrBinClose{
 		name:  name,
@@ -101,9 +96,9 @@ func (e *ErrBinClose) Unwrap() error {
 func transBinsError(err error) error {
 	switch err {
 	case bins.ErrExists:
-		err = jsns.ErrExists
+		err = ErrExists
 	case bins.ErrNotExist:
-		err = jsns.ErrNotExist
+		err = ErrNotExist
 	}
 
 	return err

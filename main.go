@@ -4,20 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	binsdir "github.com/agcom/bs/bins/dir"
-	"github.com/agcom/bs/jsnobjs"
-	jsnobjsjsns "github.com/agcom/bs/jsnobjs/jsns"
+	"github.com/agcom/bs/bins"
 	"github.com/agcom/bs/jsns"
-	jsnsbins "github.com/agcom/bs/jsns/bins"
 	"io"
 	"os"
 	"path/filepath"
 )
 
 type repo struct {
-	jsnobjsJsns *jsnobjsjsns.Jsns
-	jsnsBins    *jsnsbins.Bins
-	binsDir     *binsdir.Dir
+	jsnObjs *jsns.ObjJsns
+	jsns    *jsns.Bins
+	bins    *bins.Dir
 }
 
 var rootDir = "."
@@ -29,14 +26,14 @@ var repos = make([]*repo, 0, 3)
 var exe = filepath.Base(os.Args[0])
 
 func newEntity(name string, aliases []string) {
-	binsDir := binsdir.New(filepath.Join(rootDir, name))
-	jsnsBins := jsnsbins.New(binsDir)
-	jsnobjsJsns := jsnobjsjsns.New(jsns.JsnExtMid(jsnsBins))
+	bs := bins.NewDir(filepath.Join(rootDir, name))
+	js := jsns.NewBins(bs)
+	jos := jsns.NewObjJsns(jsns.JsnExtMid(js))
 
 	repo := &repo{
-		jsnobjsJsns: jsnobjsJsns,
-		jsnsBins:    jsnsBins,
-		binsDir:     binsDir,
+		jsnObjs: jos,
+		jsns:    js,
+		bins:    bs,
 	}
 
 	repos = append(repos, repo)
@@ -77,6 +74,8 @@ func main() {
 			owCmd(args[1:])
 		case "remove", "rm":
 			rmCmd(args[1:])
+		case "update", "up", "patch", "pch":
+			upCmd(args[1:])
 		default:
 			unkCmd(args[0], args[1:])
 		}
@@ -91,7 +90,7 @@ func initCmd(args []string) {
 
 	fail := false
 	for _, repo := range repos {
-		dir := repo.binsDir.Dir()
+		dir := repo.bins.Dir()
 		err := os.MkdirAll(dir, 0770)
 		if err != nil {
 			fail = true
@@ -118,17 +117,17 @@ func newCmd(args []string) {
 		FatalfCode(2, "entity \"%s\" isn't defined", entityName)
 	}
 
-	var jo jsnobjs.Jsnobj
+	var jo jsns.JsnObj
 	if s == "-" {
-		jo, err = readerToJsnobj(os.Stdin)
+		jo, err = readerToJsnObj(os.Stdin)
 	} else {
-		jo, err = strToJsnobj(s)
+		jo, err = strToJsnObj(s)
 	}
 	if err != nil {
 		Fatal(err)
 	}
 
-	name, err := jsnobjs.NewJsnobjGenName(r.jsnobjsJsns, jo)
+	name, err := jsns.NewJsnObjGenName(r.jsnObjs, jo)
 	if err != nil {
 		// TODO: translate errors.
 		Fatal(err)
@@ -159,13 +158,13 @@ func getCmd(args []string) {
 		FatalfCode(2, "entity \"%s\" isn't defined", entityName)
 	}
 
-	jo, err := r.jsnobjsJsns.Get(name)
+	jo, err := r.jsnObjs.Get(name)
 	if err != nil {
 		// TODO: translate errors.
 		Fatal(err)
 	}
 
-	str, err := jsnobjToStr(jo, pretty)
+	str, err := jsnObjToStr(jo, pretty)
 	if err != nil {
 		Fatal(err)
 	}
@@ -196,17 +195,17 @@ func owCmd(args []string) {
 		FatalfCode(2, "entity \"%s\" isn't defined", entityName)
 	}
 
-	var jo jsnobjs.Jsnobj
+	var jo jsns.JsnObj
 	if s == "-" {
-		jo, err = readerToJsnobj(os.Stdin)
+		jo, err = readerToJsnObj(os.Stdin)
 	} else {
-		jo, err = strToJsnobj(s)
+		jo, err = strToJsnObj(s)
 	}
 	if err != nil {
 		Fatal(err)
 	}
 
-	err = r.jsnobjsJsns.Ow(name, jo)
+	err = r.jsnObjs.Ow(name, jo)
 	if err != nil {
 		// TODO: translate errors.
 		Fatal(err)
@@ -227,9 +226,41 @@ func rmCmd(args []string) {
 		FatalfCode(2, "entity \"%s\" isn't defined", entityName)
 	}
 
-	err = r.jsnobjsJsns.Rm(name)
+	err = r.jsnObjs.Rm(name)
 	if err != nil {
 		// TODO: translate errors.
+		Fatal(err)
+	}
+}
+
+func upCmd(args []string) {
+	err := checkExactArgs(args, 3)
+	if err != nil {
+		Fatal(err)
+	}
+
+	entityName := args[0]
+	name := args[1]
+	s := args[2]
+
+	r, ok := repoLkp[entityName]
+	if !ok {
+		FatalfCode(2, "entity \"%s\" isn't defined", entityName)
+	}
+
+	var jo jsns.JsnObj
+	if s == "-" {
+		jo, err = readerToJsnObj(os.Stdin)
+	} else {
+		jo, err = strToJsnObj(s)
+	}
+	if err != nil {
+		Fatal(err)
+	}
+
+	err = jsns.WeakUpJsnObj(r.jsnObjs, name, jo)
+	if err != nil {
+		// TODO: translate error.
 		Fatal(err)
 	}
 }
@@ -262,26 +293,26 @@ func checkNoArgs(args []string) error {
 	return nil
 }
 
-var jsnButNotJsnobj = errors.New("the json string is not a json object string")
+var jsnButNotJsnObj = errors.New("the json string is not a json object string")
 
-func strToJsnobj(s string) (jsnobjs.Jsnobj, error) {
-	return bytesToJsnobj([]byte(s))
+func strToJsnObj(s string) (jsns.JsnObj, error) {
+	return bytesToJsnObj([]byte(s))
 }
 
-func bytesToJsnobj(b []byte) (jsnobjs.Jsnobj, error) {
+func bytesToJsnObj(b []byte) (jsns.JsnObj, error) {
 	var j jsns.Jsn
 	err := json.Unmarshal(b, &j)
 	if err != nil {
 		return nil, fmt.Errorf("invalid json string %v; %w", string(b), err)
 	}
-	if jo, ok := j.(jsnobjs.Jsnobj); ok {
+	if jo, ok := j.(jsns.JsnObj); ok {
 		return jo, nil
 	} else {
-		return nil, jsnButNotJsnobj
+		return nil, jsnButNotJsnObj
 	}
 }
 
-func jsnobjToStr(j jsnobjs.Jsnobj, indent bool) (string, error) {
+func jsnObjToStr(j jsns.JsnObj, indent bool) (string, error) {
 	r, w := io.Pipe()
 	enc := json.NewEncoder(w)
 	if indent {
@@ -300,16 +331,16 @@ func jsnobjToStr(j jsnobjs.Jsnobj, indent bool) (string, error) {
 	return string(b), nil
 }
 
-func readerToJsnobj(r io.Reader) (jsnobjs.Jsnobj, error) {
+func readerToJsnObj(r io.Reader) (jsns.JsnObj, error) {
 	dec := json.NewDecoder(r)
 	var j jsns.Jsn
 	err := dec.Decode(&j)
 	if err != nil {
 		return nil, err
 	}
-	if jo, ok := j.(jsnobjs.Jsnobj); ok {
+	if jo, ok := j.(jsns.JsnObj); ok {
 		return jo, nil
 	} else {
-		return nil, jsnButNotJsnobj
+		return nil, jsnButNotJsnObj
 	}
 }

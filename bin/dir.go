@@ -18,22 +18,22 @@ func NewDir(d string) *Dir {
 }
 
 func (d *Dir) New(name string, b io.Reader) error {
-	path := d.path(name)
+	path := d.Path(name)
 	return New(path, b)
 }
 
 func (d *Dir) Open(name string) (*os.File, error) {
-	path := d.path(name)
+	path := d.Path(name)
 	return Open(path)
 }
 
 func (d *Dir) Over(name string, b io.Reader) error {
-	path := d.path(name)
+	path := d.Path(name)
 	return Over(path, b)
 }
 
 func (d *Dir) Rm(name string) (rErr error) {
-	path := d.path(name)
+	path := d.Path(name)
 	return Rm(path)
 }
 
@@ -73,6 +73,6 @@ func (d *Dir) Dir() string {
 	return string(*d)
 }
 
-func (d *Dir) path(name string) string {
+func (d *Dir) Path(name string) string {
 	return filepath.Join(d.Dir(), name)
 }

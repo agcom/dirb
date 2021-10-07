@@ -11,7 +11,7 @@ import (
 var dir *jsn.Dir
 var pretty = false
 
-// Usage: bs <command>
+// Usage: bs command
 func cmd() {
 	if len(rArgs) == 0 {
 		cmdNon()
@@ -45,7 +45,7 @@ func cmd() {
 	}
 }
 
-// Usage: bs init [-d <path>]
+// Usage: bs init [-d path]
 func cmdInit() {
 	if !checkInit() {
 		os.Exit(2)
@@ -100,7 +100,7 @@ func checkInit() bool {
 	return !fail
 }
 
-// Usage: bs create <json> [-d <path>]
+// Usage: bs create json [-d path]
 func cmdNew() {
 	if !checkNew() {
 		os.Exit(2)
@@ -175,7 +175,7 @@ func checkNew() bool {
 	return !fail
 }
 
-// Usage: bs get <name> [-d <path>] [-p [<bool>]]
+// Usage: bs get name [-d path] [-p [bool]]
 func cmdGet() {
 	if !checkGet() {
 		os.Exit(2)
@@ -275,7 +275,7 @@ func checkGet() bool {
 	return !fail
 }
 
-// Usage: bs up <name> <json> [-d <path>]
+// Usage: bs up name json [-d path]
 func cmdUp() {
 	if !checkUp() {
 		os.Exit(2)
@@ -352,7 +352,7 @@ func checkUp() bool {
 	return !fail
 }
 
-// Usage: bs over <name> <json> [-d <path>]
+// Usage: bs over name json [-d path]
 func cmdOver() {
 	if !checkOver() {
 		os.Exit(2)
@@ -429,7 +429,7 @@ func checkOver() bool {
 	return !fail
 }
 
-// Usage: bs rm <name> [-d <path>]
+// Usage: bs rm name [-d path]
 func cmdRm() {
 	if !checkRm() {
 		os.Exit(2)
@@ -494,27 +494,27 @@ func cmdNon() {
 	fatalc(2, "no command given")
 }
 
-// Usage: bs help [<command>]
+// Usage: bs help command
 func cmdHelp() {
 	fatal("not yet implemented")
 }
 
-// Usage: bs <unknown-command>
+// Usage: bs unknown-command
 func cmdUnk(unkCmd string) {
 	fatalfc(2, "unknown command %q", unkCmd)
 }
 
-// Usage: bs grep <regex> [-f [<bool>]] [-d <path>] [-s <field>] [{-a | -d} [<bool>]]
+// Usage: bs grep regex [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
 func cmdGrep() {
 	fatal("not yet implemented")
 }
 
-// Usage: bs ls [-f [<bool>]] [-d <path>] [-s <field>] [{-a | -d} [<bool>]]
+// Usage: bs ls [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
 func cmdLs() {
 	fatal("not yet implemented")
 }
 
-// Usage: bs find <l> <op> <r> [-l [<bool>]] [-r [<bool>]] [-f [<bool>]] [-d <path>] [-s <field>] [{-a | -d} [<bool>]]
+// Usage: bs find l op r [-l [bool]] [-r [bool]] [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
 func cmdFind() {
 	fatal("not yet implemented")
 }

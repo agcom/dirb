@@ -10,6 +10,7 @@ import (
 
 func ReaderToJsn(r io.Reader) (interface{}, error) {
 	dec := json.NewDecoder(r)
+	dec.UseNumber()
 	var j interface{}
 	err := dec.Decode(&j)
 	if err != nil {

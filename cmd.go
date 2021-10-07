@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-var rootDir jsn.Dir
+var dir *jsn.Dir
 var pretty = false
 
 // Usage: bs <command>
@@ -31,6 +31,12 @@ func cmd() {
 			cmdRm()
 		case "help":
 			cmdHelp()
+		case "grep", "search":
+			cmdGrep()
+		case "ls", "list":
+			cmdLs()
+		case "find":
+			cmdFind()
 		default:
 			cmdUnk(pArg0)
 		}
@@ -43,14 +49,10 @@ func cmdInit() {
 		os.Exit(2)
 	}
 
-	regDefEnts()
-
-	for _, entDir := range entDirs {
-		d := entDir.BinDir().Dir()
-		err := os.MkdirAll(d, 0775)
-		if err != nil {
-			errorf("failed to make directory %q (or one of its parent directories); %v", d, err)
-		}
+	d := dir.BinDir().Dir()
+	err := os.MkdirAll(d, 0775)
+	if err != nil {
+		errorf("failed to create directory %q (or one of its parents); %v", d, err)
 	}
 }
 
@@ -91,26 +93,18 @@ func checkInit() bool {
 		}
 	}
 
-	rootDir = *jsn.NewDir(d)
+	dir = jsn.NewDir(d)
 
 	return !fail
 }
 
-// Usage: bs create <entity> <json> [-d <path>]
+// Usage: bs create <json> [-d <path>]
 func cmdNew() {
 	if !checkNew() {
 		os.Exit(2)
 	}
 
-	regDefEnts()
-
-	ent := pArgs[0]
-	s := pArgs[1]
-
-	entDir := entDir(ent)
-	if entDir == nil {
-		fatalf("entity %q isn't defined", ent)
-	}
+	s := pArgs[0]
 
 	var jo map[string]interface{}
 	var err error
@@ -124,7 +118,7 @@ func cmdNew() {
 		fatalErr(err)
 	}
 
-	name, err := newJsnGenName(entDir, jo)
+	name, err := newJsnGenName(dir, jo)
 	if err != nil {
 		// This command should never fail; unexpected error.
 		fatalErr(err)
@@ -137,16 +131,12 @@ func checkNew() bool {
 	fail := false
 
 	// Check positional args
-	if len(pArgs) != 2 {
+	if len(pArgs) != 1 {
 		fail = true
-		if len(pArgs) < 2 {
-			if len(pArgs) == 0 {
-				errorr("no positional argument")
-			} else if len(pArgs) == 1 {
-				errorf("not enough positional arguments (only 1): %v", pArgs)
-			}
+		if len(pArgs) == 0 {
+			errorr("no positional argument")
 		} else {
-			errorf("unexpected positional argument(s): %v", pArgs[2:])
+			errorf("unexpected positional argument(s): %v", pArgs[1:])
 		}
 	}
 
@@ -178,28 +168,20 @@ func checkNew() bool {
 		}
 	}
 
-	rootDir = *jsn.NewDir(d)
+	dir = jsn.NewDir(d)
 
 	return !fail
 }
 
-// Usage: bs get <entity> <name> [-d <path>] [-p [<bool>]]
+// Usage: bs get <name> [-d <path>] [-p [<bool>]]
 func cmdGet() {
 	if !checkGet() {
 		os.Exit(2)
 	}
 
-	regDefEnts()
+	name := pArgs[0]
 
-	ent := pArgs[0]
-	name := pArgs[1]
-
-	entDir := entDir(ent)
-	if entDir == nil {
-		fatalf("entity %q isn't defined", ent)
-	}
-
-	jo, err := entDir.GetObj(name)
+	jo, err := dir.GetObj(name)
 	if err != nil {
 		fatalErr(err)
 	}
@@ -220,16 +202,12 @@ func checkGet() bool {
 	fail := false
 
 	// Check positional args
-	if len(pArgs) != 2 {
+	if len(pArgs) != 1 {
 		fail = true
-		if len(pArgs) < 2 {
-			if len(pArgs) == 0 {
-				errorr("no positional argument")
-			} else if len(pArgs) == 1 {
-				errorf("not enough positional arguments (only 1): %v", pArgs)
-			}
+		if len(pArgs) == 0 {
+			errorr("no positional argument")
 		} else {
-			errorf("unexpected positional argument(s): %v", pArgs[2:])
+			errorf("unexpected positional argument(s): %v", pArgs[1:])
 		}
 	}
 
@@ -289,28 +267,20 @@ func checkGet() bool {
 		}
 	}
 
-	rootDir = *jsn.NewDir(d)
+	dir = jsn.NewDir(d)
 	pretty = pl
 
 	return !fail
 }
 
-// Usage: bs up <entity> <name> <json> [-d <path>]
+// Usage: bs up <name> <json> [-d <path>]
 func cmdUp() {
 	if !checkUp() {
 		os.Exit(2)
 	}
 
-	regDefEnts()
-
-	ent := pArgs[0]
-	name := pArgs[1]
-	s := pArgs[2]
-
-	entDir := entDir(ent)
-	if entDir == nil {
-		fatalf("entity %q isn't defined", ent)
-	}
+	name := pArgs[0]
+	s := pArgs[1]
 
 	var jo map[string]interface{}
 	var err error
@@ -324,7 +294,7 @@ func cmdUp() {
 		fatalErr(err)
 	}
 
-	err = entDir.Up(name, jo)
+	err = dir.Up(name, jo)
 	if err != nil {
 		fatalErr(err)
 	}
@@ -334,9 +304,9 @@ func checkUp() bool {
 	fail := false
 
 	// Check positional args
-	if len(pArgs) != 3 {
+	if len(pArgs) != 2 {
 		fail = true
-		if len(pArgs) < 3 {
+		if len(pArgs) < 2 {
 			if len(pArgs) == 0 {
 				errorr("no positional argument")
 			} else {
@@ -375,27 +345,19 @@ func checkUp() bool {
 		}
 	}
 
-	rootDir = *jsn.NewDir(d)
+	dir = jsn.NewDir(d)
 
 	return !fail
 }
 
-// Usage: bs over <entity> <name> <json> [-d <path>]
+// Usage: bs over <name> <json> [-d <path>]
 func cmdOver() {
 	if !checkOver() {
 		os.Exit(2)
 	}
 
-	regDefEnts()
-
-	ent := pArgs[0]
-	name := pArgs[1]
-	s := pArgs[2]
-
-	entDir := entDir(ent)
-	if entDir == nil {
-		fatalf("entity %q isn't defined", ent)
-	}
+	name := pArgs[0]
+	s := pArgs[1]
 
 	var jo map[string]interface{}
 	var err error
@@ -409,7 +371,7 @@ func cmdOver() {
 		fatalErr(err)
 	}
 
-	err = entDir.Over(name, jo)
+	err = dir.Over(name, jo)
 	if err != nil {
 		fatalErr(err)
 	}
@@ -419,9 +381,9 @@ func checkOver() bool {
 	fail := false
 
 	// Check positional args
-	if len(pArgs) != 3 {
+	if len(pArgs) != 2 {
 		fail = true
-		if len(pArgs) < 3 {
+		if len(pArgs) < 2 {
 			if len(pArgs) == 0 {
 				errorr("no positional argument")
 			} else {
@@ -460,28 +422,20 @@ func checkOver() bool {
 		}
 	}
 
-	rootDir = *jsn.NewDir(d)
+	dir = jsn.NewDir(d)
 
 	return !fail
 }
 
-// Usage: bs rm <entity> <name> [-d <path>]
+// Usage: bs rm <name> [-d <path>]
 func cmdRm() {
 	if !checkRm() {
 		os.Exit(2)
 	}
 
-	regDefEnts()
+	name := pArgs[0]
 
-	ent := pArgs[0]
-	name := pArgs[1]
-
-	entDir := entDir(ent)
-	if entDir == nil {
-		fatalf("entity %q isn't defined", ent)
-	}
-
-	err := entDir.Rm(name)
+	err := dir.Rm(name)
 	if err != nil {
 		fatalErr(err)
 	}
@@ -491,16 +445,12 @@ func checkRm() bool {
 	fail := false
 
 	// Check positional args
-	if len(pArgs) != 2 {
+	if len(pArgs) != 1 {
 		fail = true
-		if len(pArgs) < 2 {
-			if len(pArgs) == 0 {
-				errorr("no positional argument")
-			} else if len(pArgs) == 1 {
-				errorf("not enough positional arguments (only 1): %v", pArgs)
-			}
+		if len(pArgs) == 0 {
+			errorr("no positional argument")
 		} else {
-			errorf("unexpected positional argument(s): %v", pArgs[2:])
+			errorf("unexpected positional argument(s): %v", pArgs[1:])
 		}
 	}
 
@@ -532,7 +482,7 @@ func checkRm() bool {
 		}
 	}
 
-	rootDir = *jsn.NewDir(d)
+	dir = jsn.NewDir(d)
 
 	return !fail
 }
@@ -548,8 +498,23 @@ func cmdHelp() {
 }
 
 // Usage: bs <unknown-command>
-func cmdUnk(cmd string) {
-	fatalfCode(2, "unknown command %q", cmd)
+func cmdUnk(unkCmd string) {
+	fatalfCode(2, "unknown command %q", unkCmd)
+}
+
+// Usage: bs grep <regex> [-f [<bool>]] [-d <path>] [-s <field>] [{-a | -d} [<bool>]]
+func cmdGrep() {
+	fatal("not yet implemented")
+}
+
+// Usage: bs ls [-f [<bool>]] [-d <path>] [-s <field>] [{-a | -d} [<bool>]]
+func cmdLs() {
+	fatal("not yet implemented")
+}
+
+// Usage: bs find <l> <op> <r> [-l [<bool>]] [-r [<bool>]] [-f [<bool>]] [-d <path>] [-s <field>] [{-a | -d} [<bool>]]
+func cmdFind() {
+	fatal("not yet implemented")
 }
 
 func rmFlag(i int) {

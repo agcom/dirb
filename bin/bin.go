@@ -178,7 +178,7 @@ func openTmp(dir string, pattern string) (*os.File, error) {
 		return nil, fmt.Errorf("failed to open a temporary file in directory %q; %w", dir, err)
 	}
 
-	err = f.Chmod(0660)
+	err = f.Chmod(0664)
 	if err != nil {
 		return f, fmt.Errorf("failed to change permission bits of temporary file %q; %w", f.Name(), err)
 	}

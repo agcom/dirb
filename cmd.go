@@ -50,7 +50,7 @@ func cmdInit() {
 
 	for _, entDir := range entDirs {
 		d := entDir.BinDir().Dir()
-		err := os.MkdirAll(d, 0770)
+		err := os.MkdirAll(d, 0775)
 		if err != nil {
 			errorf("failed to make directory %q (or one of its parent directories); %v", d, err)
 		}

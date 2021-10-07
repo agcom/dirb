@@ -8,7 +8,7 @@ import (
 )
 
 func Lck(path string) (*os.File, error) {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_RDWR|os.O_TRUNC, 0660)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_RDWR|os.O_TRUNC, 0664)
 	if err != nil {
 		if errors.Is(err, os.ErrExist) {
 			return nil, NewErrLcked(path)

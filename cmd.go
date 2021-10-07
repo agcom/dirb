@@ -11,11 +11,11 @@ var pretty = false
 
 // Usage: bs <command>
 func cmd() {
-	if len(args) == 0 {
+	if len(rArgs) == 0 {
 		cmdNon()
 	} else {
-		pArg0 := pArgs[0]
-		pArgs = pArgs[1:]
+		pArg0 := rArgs[0]
+		rArgs = rArgs[1:]
 		switch pArg0 {
 		case "init":
 			cmdInit()
@@ -59,10 +59,10 @@ func cmdInit() {
 func checkInit() bool {
 	fail := false
 
-	// Check positional args
-	if len(pArgs) != 0 {
+	// Check args
+	if len(rArgs) != 0 {
 		fail = true
-		logf("unexpected positional argument(s): %v", pArgs)
+		logf("unexpected argument(s): %v", rArgs)
 	}
 
 	// Check flags
@@ -104,7 +104,7 @@ func cmdNew() {
 		os.Exit(2)
 	}
 
-	s := pArgs[0]
+	s := rArgs[0]
 
 	var jo map[string]interface{}
 	var err error
@@ -130,13 +130,13 @@ func cmdNew() {
 func checkNew() bool {
 	fail := false
 
-	// Check positional args
-	if len(pArgs) != 1 {
+	// Check args
+	if len(rArgs) != 1 {
 		fail = true
-		if len(pArgs) == 0 {
-			log("no positional argument")
+		if len(rArgs) == 0 {
+			log("no argument")
 		} else {
-			logf("unexpected positional argument(s): %v", pArgs[1:])
+			logf("unexpected argument(s): %v", rArgs[1:])
 		}
 	}
 
@@ -179,7 +179,7 @@ func cmdGet() {
 		os.Exit(2)
 	}
 
-	name := pArgs[0]
+	name := rArgs[0]
 
 	jo, err := dir.GetObj(name)
 	if err != nil {
@@ -201,13 +201,13 @@ func cmdGet() {
 func checkGet() bool {
 	fail := false
 
-	// Check positional args
-	if len(pArgs) != 1 {
+	// Check args
+	if len(rArgs) != 1 {
 		fail = true
-		if len(pArgs) == 0 {
-			log("no positional argument")
+		if len(rArgs) == 0 {
+			log("no argument")
 		} else {
-			logf("unexpected positional argument(s): %v", pArgs[1:])
+			logf("unexpected argument(s): %v", rArgs[1:])
 		}
 	}
 
@@ -279,8 +279,8 @@ func cmdUp() {
 		os.Exit(2)
 	}
 
-	name := pArgs[0]
-	s := pArgs[1]
+	name := rArgs[0]
+	s := rArgs[1]
 
 	var jo map[string]interface{}
 	var err error
@@ -303,17 +303,17 @@ func cmdUp() {
 func checkUp() bool {
 	fail := false
 
-	// Check positional args
-	if len(pArgs) != 2 {
+	// Check args
+	if len(rArgs) != 2 {
 		fail = true
-		if len(pArgs) < 2 {
-			if len(pArgs) == 0 {
-				log("no positional argument")
+		if len(rArgs) < 2 {
+			if len(rArgs) == 0 {
+				log("no argument")
 			} else {
-				logf("not enough positional arguments (only %d): %v", len(pArgs), pArgs)
+				logf("not enough arguments (only %d): %v", len(rArgs), rArgs)
 			}
 		} else {
-			logf("unexpected positional argument(s): %v", pArgs[2:])
+			logf("unexpected argument(s): %v", rArgs[2:])
 		}
 	}
 
@@ -356,8 +356,8 @@ func cmdOver() {
 		os.Exit(2)
 	}
 
-	name := pArgs[0]
-	s := pArgs[1]
+	name := rArgs[0]
+	s := rArgs[1]
 
 	var jo map[string]interface{}
 	var err error
@@ -380,17 +380,17 @@ func cmdOver() {
 func checkOver() bool {
 	fail := false
 
-	// Check positional args
-	if len(pArgs) != 2 {
+	// Check args
+	if len(rArgs) != 2 {
 		fail = true
-		if len(pArgs) < 2 {
-			if len(pArgs) == 0 {
-				log("no positional argument")
+		if len(rArgs) < 2 {
+			if len(rArgs) == 0 {
+				log("no argument")
 			} else {
-				logf("not enough positional arguments (only %d): %v", len(pArgs), pArgs)
+				logf("not enough arguments (only %d): %v", len(rArgs), rArgs)
 			}
 		} else {
-			logf("unexpected positional argument(s): %v", pArgs[2:])
+			logf("unexpected argument(s): %v", rArgs[2:])
 		}
 	}
 
@@ -433,7 +433,7 @@ func cmdRm() {
 		os.Exit(2)
 	}
 
-	name := pArgs[0]
+	name := rArgs[0]
 
 	err := dir.Rm(name)
 	if err != nil {
@@ -444,13 +444,13 @@ func cmdRm() {
 func checkRm() bool {
 	fail := false
 
-	// Check positional args
-	if len(pArgs) != 1 {
+	// Check args
+	if len(rArgs) != 1 {
 		fail = true
-		if len(pArgs) == 0 {
-			log("no positional argument")
+		if len(rArgs) == 0 {
+			log("no argument")
 		} else {
-			logf("unexpected positional argument(s): %v", pArgs[1:])
+			logf("unexpected argument(s): %v", rArgs[1:])
 		}
 	}
 

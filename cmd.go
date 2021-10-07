@@ -259,8 +259,7 @@ func checkGet() bool {
 						errorf("invalid boolean value %q", ps)
 					}
 				} else {
-					fail = true
-					errorr("no value assigned to \"directory\" flag")
+					pl = true
 				}
 			}
 		default:

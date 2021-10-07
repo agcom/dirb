@@ -38,15 +38,12 @@ func Get(path string) (rJ interface{}, rErr error) {
 		}
 	}()
 
-	dec := json.NewDecoder(r)
-	var j interface{}
-	err = dec.Decode(&j)
-
+	j, err := ReaderToJsn(r)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode from a json; %w", err)
-	} else {
-		return j, nil
+		return nil, err
 	}
+
+	return j, nil
 }
 
 func Over(path string, j interface{}) error {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/agcom/bs/jsn"
 	"io"
 )
 
@@ -20,14 +21,7 @@ func bytesToJsn(b []byte) (interface{}, error) {
 }
 
 func readerToJsn(r io.Reader) (interface{}, error) {
-	dec := json.NewDecoder(r)
-	var j interface{}
-	err := dec.Decode(&j)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode; %w", err)
-	}
-
-	return j, nil
+	return jsn.ReaderToJsn(r)
 }
 
 func readerToJsnObj(r io.Reader) (map[string]interface{}, error) {

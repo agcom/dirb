@@ -111,11 +111,7 @@ func newOrOverLckPath(new bool, path string, b io.Reader, lckPath string) (rErr 
 		}
 	}()
 
-	if new {
-		return NewBare(path, b)
-	} else {
-		return OverBare(path, b)
-	}
+	return newOrOverBare(new, path, b)
 }
 
 func newOrOverBare(new bool, path string, b io.Reader) (rErr error) {
@@ -137,13 +133,21 @@ func newOrOverBare(new bool, path string, b io.Reader) (rErr error) {
 	tmpPath := tmpFile.Name()
 	defer func() {
 		tmpFileCloseErr := tmpFile.Close()
-		if tmpFileCloseErr != nil && !errors.Is(tmpFileCloseErr, os.ErrClosed) {
-			tmpFileCloseErr = fmt.Errorf("failed to close temporary file %q; %w", tmpPath, tmpFileCloseErr)
+		if tmpFileCloseErr != nil {
+			if !errors.Is(tmpFileCloseErr, os.ErrClosed) {
+				tmpFileCloseErr = fmt.Errorf("failed to close temporary file %q; %w", tmpPath, tmpFileCloseErr)
+			} else {
+				tmpFileCloseErr = nil
+			}
 		}
 
 		tmpFileRmErr := os.Remove(tmpPath)
-		if tmpFileRmErr != nil && !errors.Is(tmpFileRmErr, os.ErrNotExist) {
-			tmpFileRmErr = fmt.Errorf("failed to remove temporary file %q; %w", tmpPath, tmpFileRmErr)
+		if tmpFileRmErr != nil {
+			if !errors.Is(tmpFileRmErr, os.ErrNotExist) {
+				tmpFileRmErr = fmt.Errorf("failed to remove temporary file %q; %w", tmpPath, tmpFileRmErr)
+			} else {
+				tmpFileRmErr = nil
+			}
 		}
 
 		rErr = multierr.Combine(rErr, tmpFileRmErr, tmpFileCloseErr)

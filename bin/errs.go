@@ -20,7 +20,7 @@ func NewErrExists(path string) *ErrExists {
 type ErrNotExist string
 
 func (e *ErrNotExist) Error() string {
-	return fmt.Sprintf("%q", string(*e))
+	return fmt.Sprintf("%q doesn't exist", string(*e))
 }
 
 func NewErrNotExist(path string) *ErrNotExist {

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/agcom/bs/jsn"
+	"io"
 	"os"
 )
 
@@ -110,9 +112,9 @@ func cmdNew() {
 	var err error
 	if s == "-" {
 		// Read from stdin
-		jo, err = readerToJsnObj(os.Stdin)
+		jo, err = jsn.ReaderToJsnObj(os.Stdin)
 	} else {
-		jo, err = strToJsnObj(s)
+		jo, err = jsn.StrToJsnObj(s)
 	}
 	if err != nil {
 		fatalErr(err)
@@ -186,7 +188,7 @@ func cmdGet() {
 		fatalErr(err)
 	}
 
-	s, err := jsnObjToStr(jo, pretty)
+	s, err := jsnObjToStrTabIndent(jo, pretty)
 	if err != nil {
 		fatalErr(err)
 	} else {
@@ -286,9 +288,9 @@ func cmdUp() {
 	var err error
 	if s == "-" {
 		// Read from stdin
-		jo, err = readerToJsnObj(os.Stdin)
+		jo, err = jsn.ReaderToJsnObj(os.Stdin)
 	} else {
-		jo, err = strToJsnObj(s)
+		jo, err = jsn.StrToJsnObj(s)
 	}
 	if err != nil {
 		fatalErr(err)
@@ -363,9 +365,9 @@ func cmdOver() {
 	var err error
 	if s == "-" {
 		// Read from stdin
-		jo, err = readerToJsnObj(os.Stdin)
+		jo, err = jsn.ReaderToJsnObj(os.Stdin)
 	} else {
-		jo, err = strToJsnObj(s)
+		jo, err = jsn.StrToJsnObj(s)
 	}
 	if err != nil {
 		fatalErr(err)
@@ -519,4 +521,23 @@ func cmdFind() {
 
 func rmFlag(i int) {
 	flags = append(flags[:i], flags[i+1:]...)
+}
+
+func jsnObjToStrTabIndent(jo map[string]interface{}, tabIndent bool) (string, error) {
+	r, w := io.Pipe()
+	enc := json.NewEncoder(w)
+	if tabIndent {
+		enc.SetIndent("", "\t")
+	}
+	enc.SetEscapeHTML(false)
+	go func() {
+		err := enc.Encode(jo)
+		_ = w.CloseWithError(err)
+	}()
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return "", fmt.Errorf("failed to encode into a json string; %w", err)
+	}
+
+	return string(b), nil
 }

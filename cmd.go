@@ -117,13 +117,13 @@ func cmdNew() {
 		jo, err = jsn.StrToJsnObj(s)
 	}
 	if err != nil {
-		fatalErr(err)
+		fatalMultiErr(err)
 	}
 
 	name, err := newJsnGenName(dir, jo)
 	if err != nil {
 		// This command should never fail; unexpected error.
-		fatalErr(err)
+		fatalMultiErr(err)
 	} else {
 		fmt.Println(name)
 	}
@@ -185,12 +185,12 @@ func cmdGet() {
 
 	jo, err := dir.GetObj(name)
 	if err != nil {
-		fatalErr(err)
+		fatalMultiErr(err)
 	}
 
 	s, err := jsnObjToStrTabIndent(jo, pretty)
 	if err != nil {
-		fatalErr(err)
+		fatalMultiErr(err)
 	} else {
 		if s[len(s)-1] == '\n' {
 			fmt.Print(s)
@@ -293,12 +293,12 @@ func cmdUp() {
 		jo, err = jsn.StrToJsnObj(s)
 	}
 	if err != nil {
-		fatalErr(err)
+		fatalMultiErr(err)
 	}
 
 	err = dir.Up(name, jo)
 	if err != nil {
-		fatalErr(err)
+		fatalMultiErr(err)
 	}
 }
 
@@ -370,12 +370,12 @@ func cmdOver() {
 		jo, err = jsn.StrToJsnObj(s)
 	}
 	if err != nil {
-		fatalErr(err)
+		fatalMultiErr(err)
 	}
 
 	err = dir.Over(name, jo)
 	if err != nil {
-		fatalErr(err)
+		fatalMultiErr(err)
 	}
 }
 
@@ -439,7 +439,7 @@ func cmdRm() {
 
 	err := dir.Rm(name)
 	if err != nil {
-		fatalErr(err)
+		fatalMultiErr(err)
 	}
 }
 

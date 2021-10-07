@@ -3,65 +3,50 @@ package main
 import (
 	"fmt"
 	"go.uber.org/multierr"
-	"log"
+	stdLog "log"
 	"os"
 )
 
-var lgr = log.New(os.Stderr, "", 0)
+var lgr = stdLog.New(os.Stderr, "", 0)
 
-func lvlf(lvl string, format string, v ...interface{}) {
-	lgr.Printf("%s: %s\n", lvl, fmt.Sprintf(format, v...))
+func logf(format string, v ...interface{}) {
+	lgr.Printf("%s\n", fmt.Sprintf(format, v...))
 }
 
-func lvl(lvl string, v interface{}) {
-	lvlf(lvl, "%v", v)
+func log(v interface{}) {
+	lgr.Println(v)
 }
 
-func errorf(format string, v ...interface{}) {
-	lvlf("Error", format, v...)
-}
-
-func errorr(v interface{}) {
-	errorf("%v", v)
-}
-
-func warnf(format string, v ...interface{}) {
-	lvlf("Warning", format, v...)
-}
-
-func warn(v interface{}) {
-	warnf("%v", v)
-}
-
-func fatalfCode(code int, format string, v ...interface{}) {
-	errorf(format, v...)
+func fatalfc(code int, format string, v ...interface{}) {
+	logf(format, v...)
 	os.Exit(code)
 }
 
 func fatalf(format string, v ...interface{}) {
-	fatalfCode(1, format, v...)
+	fatalfc(1, format, v...)
 }
 
-func fatalCode(code int, v interface{}) {
-	fatalfCode(code, "%v", v)
+func fatalc(code int, v interface{}) {
+	log(v)
+	os.Exit(code)
 }
 
 func fatal(v interface{}) {
-	fatalf("%v", v)
+	fatalc(1, v)
 }
 
 func fatalErrs(errs []error) {
 	for _, err := range errs {
-		errorr(err)
+		log(err)
 	}
 	os.Exit(1)
 }
 
-func fatalMultierr(err error) {
+func fatalMultiErr(err error) {
 	errs := multierr.Errors(err)
 	fatalErrs(errs)
 }
 
 func fatalErr(err error) {
-	fatalMultierr(err)
+	fatalMultiErr(err)
 }

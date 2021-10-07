@@ -130,8 +130,7 @@ func cmdNew() {
 	name, err := newJsnGenName(entDir, jo)
 	if err != nil {
 		// This command should never fail; unexpected error.
-		multiErr(err)
-		os.Exit(1)
+		fatalMultierr(err)
 	} else {
 		fmt.Println(name)
 	}

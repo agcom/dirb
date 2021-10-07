@@ -61,3 +61,7 @@ func fatalMultierr(err error) {
 	errs := multierr.Errors(err)
 	fatalErrs(errs)
 }
+
+func fatalErr(err error) {
+	fatalMultierr(err)
+}

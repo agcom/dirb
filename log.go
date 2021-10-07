@@ -9,16 +9,24 @@ import (
 
 var lgr = stdLog.New(os.Stderr, "", 0)
 
-func logf(format string, v ...interface{}) {
-	lgr.Printf("%s\n", fmt.Sprintf(format, v...))
+func lvlf(lvl string, format string, v ...interface{}) {
+	lgr.Printf("%s: %s\n", lvl, fmt.Sprintf(format, v...))
 }
 
-func log(v interface{}) {
-	lgr.Println(v)
+func lvl(lvl string, v interface{}) {
+	lgr.Println(lvl+":", v)
+}
+
+func errorf(format string, v ...interface{}) {
+	lvlf("Error", format, v...)
+}
+
+func errorr(v interface{}) {
+	lvl("Error", v)
 }
 
 func fatalfc(code int, format string, v ...interface{}) {
-	logf(format, v...)
+	errorf(format, v...)
 	os.Exit(code)
 }
 
@@ -27,7 +35,7 @@ func fatalf(format string, v ...interface{}) {
 }
 
 func fatalc(code int, v interface{}) {
-	log(v)
+	errorr(v)
 	os.Exit(code)
 }
 
@@ -37,7 +45,7 @@ func fatal(v interface{}) {
 
 func fatalErrs(errs []error) {
 	for _, err := range errs {
-		log(err)
+		errorr(err)
 	}
 	os.Exit(1)
 }

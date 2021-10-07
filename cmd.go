@@ -54,7 +54,7 @@ func cmdInit() {
 	d := dir.BinDir().Dir()
 	err := os.MkdirAll(d, 0775)
 	if err != nil {
-		logf("failed to create directory %q (or one of its parents); %v", d, err)
+		errorf("failed to create directory %q (or one of its parents); %v", d, err)
 	}
 }
 
@@ -64,7 +64,7 @@ func checkInit() bool {
 	// Check args
 	if len(rArgs) != 0 {
 		fail = true
-		logf("unexpected argument(s): %v", rArgs)
+		errorf("unexpected argument(s): %v", rArgs)
 	}
 
 	// Check flags
@@ -78,7 +78,7 @@ func checkInit() bool {
 			if foundD {
 				// Already found
 				fail = true
-				log("multiple directory flags")
+				errorr("multiple directory flags")
 			} else {
 				foundD = true
 				rmFlag(i)
@@ -86,12 +86,12 @@ func checkInit() bool {
 					d = f.Val
 				} else {
 					fail = true
-					log("no value assigned to a \"directory\" flag")
+					errorr("no value assigned to a \"directory\" flag")
 				}
 			}
 		default:
 			fail = true
-			logf("unexpected flag %q", f.Name)
+			errorf("unexpected flag %q", f.Name)
 		}
 	}
 
@@ -136,9 +136,9 @@ func checkNew() bool {
 	if len(rArgs) != 1 {
 		fail = true
 		if len(rArgs) == 0 {
-			log("no argument")
+			errorr("no argument")
 		} else {
-			logf("unexpected argument(s): %v", rArgs[1:])
+			errorf("unexpected argument(s): %v", rArgs[1:])
 		}
 	}
 
@@ -153,7 +153,7 @@ func checkNew() bool {
 			if foundD {
 				// Already found
 				fail = true
-				log("multiple directory flags")
+				errorr("multiple directory flags")
 			} else {
 				foundD = true
 				rmFlag(i)
@@ -161,12 +161,12 @@ func checkNew() bool {
 					d = f.Val
 				} else {
 					fail = true
-					log("no value assigned to a \"directory\" flag")
+					errorr("no value assigned to a \"directory\" flag")
 				}
 			}
 		default:
 			fail = true
-			logf("unexpected flag %q", f.Name)
+			errorf("unexpected flag %q", f.Name)
 		}
 	}
 
@@ -207,9 +207,9 @@ func checkGet() bool {
 	if len(rArgs) != 1 {
 		fail = true
 		if len(rArgs) == 0 {
-			log("no argument")
+			errorr("no argument")
 		} else {
-			logf("unexpected argument(s): %v", rArgs[1:])
+			errorf("unexpected argument(s): %v", rArgs[1:])
 		}
 	}
 
@@ -227,7 +227,7 @@ func checkGet() bool {
 			if foundD {
 				// Already found
 				fail = true
-				log("multiple \"directory\" flags")
+				errorr("multiple \"directory\" flags")
 			} else {
 				foundD = true
 				rmFlag(i)
@@ -235,14 +235,14 @@ func checkGet() bool {
 					d = f.Val
 				} else {
 					fail = true
-					log("no value assigned to a \"directory\" flag")
+					errorr("no value assigned to a \"directory\" flag")
 				}
 			}
 		case "p", "pretty":
 			if foundP {
 				// Already found
 				fail = true
-				log("multiple \"pretty\" flags")
+				errorr("multiple \"pretty\" flags")
 			} else {
 				foundP = true
 				rmFlag(i)
@@ -256,16 +256,16 @@ func checkGet() bool {
 						pl = false
 					default:
 						fail = true
-						logf("invalid boolean value %q", ps)
+						errorf("invalid boolean value %q", ps)
 					}
 				} else {
 					fail = true
-					log("no value assigned to \"directory\" flag")
+					errorr("no value assigned to \"directory\" flag")
 				}
 			}
 		default:
 			fail = true
-			logf("unexpected flag %q", f.Name)
+			errorf("unexpected flag %q", f.Name)
 		}
 	}
 
@@ -310,12 +310,12 @@ func checkUp() bool {
 		fail = true
 		if len(rArgs) < 2 {
 			if len(rArgs) == 0 {
-				log("no argument")
+				errorr("no argument")
 			} else {
-				logf("not enough arguments (only %d): %v", len(rArgs), rArgs)
+				errorf("not enough arguments (only %d): %v", len(rArgs), rArgs)
 			}
 		} else {
-			logf("unexpected argument(s): %v", rArgs[2:])
+			errorf("unexpected argument(s): %v", rArgs[2:])
 		}
 	}
 
@@ -330,7 +330,7 @@ func checkUp() bool {
 			if foundD {
 				// Already found
 				fail = true
-				log("multiple \"directory\" flags")
+				errorr("multiple \"directory\" flags")
 			} else {
 				foundD = true
 				rmFlag(i)
@@ -338,12 +338,12 @@ func checkUp() bool {
 					d = f.Val
 				} else {
 					fail = true
-					log("no value assigned to a \"directory\" flag")
+					errorr("no value assigned to a \"directory\" flag")
 				}
 			}
 		default:
 			fail = true
-			logf("unexpected flag %q", f.Name)
+			errorf("unexpected flag %q", f.Name)
 		}
 	}
 
@@ -387,12 +387,12 @@ func checkOver() bool {
 		fail = true
 		if len(rArgs) < 2 {
 			if len(rArgs) == 0 {
-				log("no argument")
+				errorr("no argument")
 			} else {
-				logf("not enough arguments (only %d): %v", len(rArgs), rArgs)
+				errorf("not enough arguments (only %d): %v", len(rArgs), rArgs)
 			}
 		} else {
-			logf("unexpected argument(s): %v", rArgs[2:])
+			errorf("unexpected argument(s): %v", rArgs[2:])
 		}
 	}
 
@@ -407,7 +407,7 @@ func checkOver() bool {
 			if foundD {
 				// Already found
 				fail = true
-				log("multiple \"directory\" flags")
+				errorr("multiple \"directory\" flags")
 			} else {
 				foundD = true
 				rmFlag(i)
@@ -415,12 +415,12 @@ func checkOver() bool {
 					d = f.Val
 				} else {
 					fail = true
-					log("no value assigned to a \"directory\" flag")
+					errorr("no value assigned to a \"directory\" flag")
 				}
 			}
 		default:
 			fail = true
-			logf("unexpected flag %q", f.Name)
+			errorf("unexpected flag %q", f.Name)
 		}
 	}
 
@@ -450,9 +450,9 @@ func checkRm() bool {
 	if len(rArgs) != 1 {
 		fail = true
 		if len(rArgs) == 0 {
-			log("no argument")
+			errorr("no argument")
 		} else {
-			logf("unexpected argument(s): %v", rArgs[1:])
+			errorf("unexpected argument(s): %v", rArgs[1:])
 		}
 	}
 
@@ -467,7 +467,7 @@ func checkRm() bool {
 			if foundD {
 				// Already found
 				fail = true
-				log("multiple \"directory\" flags")
+				errorr("multiple \"directory\" flags")
 			} else {
 				foundD = true
 				rmFlag(i)
@@ -475,12 +475,12 @@ func checkRm() bool {
 					d = f.Val
 				} else {
 					fail = true
-					log("no value assigned to a \"directory\" flag")
+					errorr("no value assigned to a \"directory\" flag")
 				}
 			}
 		default:
 			fail = true
-			logf("unexpected flag %q", f.Name)
+			errorf("unexpected flag %q", f.Name)
 		}
 	}
 

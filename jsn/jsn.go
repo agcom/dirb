@@ -40,7 +40,7 @@ func Get(path string) (rJ interface{}, rErr error) {
 
 	j, err := ReaderToJsn(r)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decode %q into a json; %w", path, err)
 	}
 
 	return j, nil

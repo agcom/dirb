@@ -14,7 +14,7 @@ func ReaderToJsn(r io.Reader) (interface{}, error) {
 	var j interface{}
 	err := dec.Decode(&j)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode into a json; %w", err)
+		return nil, err
 	}
 
 	// Check whether the stream ended; ensure that the whole stream contained exactly a single json.
@@ -24,7 +24,7 @@ func ReaderToJsn(r io.Reader) (interface{}, error) {
 		return j, nil
 	} else {
 		// Stream not ended; can or can't proceed decoding.
-		return nil, fmt.Errorf("failed to decode into a json; json already ended, but got more input")
+		return nil, fmt.Errorf("json already ended, but got more input")
 	}
 }
 
@@ -76,7 +76,7 @@ func JsnObjToReader(jo map[string]interface{}) io.Reader {
 func JsnToByteSlice(j interface{}) ([]byte, error) {
 	bs, err := json.Marshal(j)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode into a json string; %w", err)
+		return nil, err
 	}
 
 	return bs, nil

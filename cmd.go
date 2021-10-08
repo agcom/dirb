@@ -67,9 +67,10 @@ func checkInit() bool {
 	fail := false
 
 	// Check args
-	if len(remArgs) != 0 {
+	err := errIfNotExactRemArgs(0)
+	if err != nil {
 		fail = true
-		errorf("unexpected argument(s): %v", remArgs)
+		errorr(err)
 	}
 
 	// Check flags
@@ -138,13 +139,10 @@ func checkNew() bool {
 	fail := false
 
 	// Check args
-	if len(remArgs) != 1 {
+	err := errIfNotExactRemArgs(1)
+	if err != nil {
 		fail = true
-		if len(remArgs) == 0 {
-			errorr("no argument")
-		} else {
-			errorf("unexpected argument(s): %v", remArgs[1:])
-		}
+		errorr(err)
 	}
 
 	// Check flags
@@ -209,13 +207,10 @@ func checkGet() bool {
 	fail := false
 
 	// Check args
-	if len(remArgs) != 1 {
+	err := errIfNotExactRemArgs(1)
+	if err != nil {
 		fail = true
-		if len(remArgs) == 0 {
-			errorr("no argument")
-		} else {
-			errorf("unexpected argument(s): %v", remArgs[1:])
-		}
+		errorr(err)
 	}
 
 	// Check flags
@@ -310,17 +305,10 @@ func checkUp() bool {
 	fail := false
 
 	// Check args
-	if len(remArgs) != 2 {
+	err := errIfNotExactRemArgs(2)
+	if err != nil {
 		fail = true
-		if len(remArgs) < 2 {
-			if len(remArgs) == 0 {
-				errorr("no argument")
-			} else {
-				errorf("not enough arguments (only %d): %v", len(remArgs), remArgs)
-			}
-		} else {
-			errorf("unexpected argument(s): %v", remArgs[2:])
-		}
+		errorr(err)
 	}
 
 	// Check flags
@@ -387,17 +375,10 @@ func checkOver() bool {
 	fail := false
 
 	// Check args
-	if len(remArgs) != 2 {
+	err := errIfNotExactRemArgs(2)
+	if err != nil {
 		fail = true
-		if len(remArgs) < 2 {
-			if len(remArgs) == 0 {
-				errorr("no argument")
-			} else {
-				errorf("not enough arguments (only %d): %v", len(remArgs), remArgs)
-			}
-		} else {
-			errorf("unexpected argument(s): %v", remArgs[2:])
-		}
+		errorr(err)
 	}
 
 	// Check flags
@@ -451,13 +432,10 @@ func checkRm() bool {
 	fail := false
 
 	// Check args
-	if len(remArgs) != 1 {
+	err := errIfNotExactRemArgs(1)
+	if err != nil {
 		fail = true
-		if len(remArgs) == 0 {
-			errorr("no argument")
-		} else {
-			errorf("unexpected argument(s): %v", remArgs[1:])
-		}
+		errorr(err)
 	}
 
 	// Check flags
@@ -848,7 +826,7 @@ func jsnEq(j1, j2 interface{}) bool {
 	}
 }
 
-func checkExactRemArgs(i int) error {
+func errIfNotExactRemArgs(i int) error {
 	if i < 0 {
 		panic(fmt.Sprintf("negative number of args %d", i))
 	}
@@ -859,14 +837,14 @@ func checkExactRemArgs(i int) error {
 			if l == 0 {
 				return fmt.Errorf("no argument")
 			} else {
-				return fmt.Errorf("not enough arguments (only %d): %s", l, strings.Join(remArgs, " "))
+				return fmt.Errorf("not enough arguments (only %d)", l)
 			}
 		} else {
 			if l == 1 {
 				// i is 0
 				return fmt.Errorf("unexpected argument: %v", remArgs[0])
 			} else {
-				return fmt.Errorf("unexpected arguments: %s", strings.Join(remArgs, " "))
+				return fmt.Errorf("unexpected arguments: %s", strings.Join(remArgs[i:], " "))
 			}
 		}
 	}
@@ -917,7 +895,7 @@ func checkFind() bool {
 	fail := false
 
 	// Check args
-	err := checkExactRemArgs(3)
+	err := errIfNotExactRemArgs(3)
 	if err != nil {
 		fail = true
 		errorr(err)
@@ -1056,7 +1034,7 @@ func checkLs() bool {
 	fail := false
 
 	// Check args
-	err := checkExactRemArgs(0)
+	err := errIfNotExactRemArgs(0)
 	if err != nil {
 		fail = true
 		errorr(err)

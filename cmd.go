@@ -808,6 +808,12 @@ func opIn(jl interface{}, jr interface{}) bool {
 }
 
 func primInPrim(jl interface{}, jr interface{}) bool {
+	if jl == nil && jr == nil {
+		return true
+	} else if jl == nil || jr == nil {
+		return false
+	}
+
 	jls := fmt.Sprint(jl)
 	jrs := fmt.Sprint(jr)
 
@@ -829,7 +835,11 @@ func primInArr(jl interface{}, jar []interface{}) bool {
 }
 
 func primInObj(jl interface{}, jor map[string]interface{}) bool {
-	return valInObj(jl, jor)
+	if jl == nil {
+		return false
+	} else {
+		return keyInObj(jl, jor)
+	}
 }
 
 func arrInArr(jal []interface{}, jar []interface{}) bool {
@@ -837,7 +847,7 @@ func arrInArr(jal []interface{}, jar []interface{}) bool {
 }
 
 func arrInObj(jal []interface{}, jor map[string]interface{}) bool {
-	return valInObj(jal, jor)
+	return false
 }
 
 func objInArr(jol map[string]interface{}, jar []interface{}) bool {
@@ -845,12 +855,12 @@ func objInArr(jol map[string]interface{}, jar []interface{}) bool {
 }
 
 func objInObj(jol, jor map[string]interface{}) bool {
-	return valInObj(jol, jor)
+	return false
 }
 
-func valInObj(jl interface{}, jor map[string]interface{}) bool {
-	for _, vr := range jor {
-		if jsnEq(vr, jl) {
+func keyInObj(jl interface{}, jor map[string]interface{}) bool {
+	for kr, _ := range jor {
+		if jsnEq(kr, jl) {
 			return true
 		}
 	}

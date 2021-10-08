@@ -6,17 +6,17 @@ import (
 	"os"
 )
 
-var flagNoNxtArgVal = []string{"p", "pretty"}
+var flagNoNxtArgVal = []string{"p", "pretty", "l", "left-operand-is-field-reference", "r", "right-operand-is-field-reference"}
 
 var arg0 = os.Args[0]
 var aArgs = os.Args[1:] // All arguments
-var rArgs []string      // Remaining arguments
+var remArgs []string    // Remaining arguments
 var flags []*sflag.Flag
 
 func parseArgs() error {
 	fs, pa, err := sflag.ParseNoNxtArgVal(aArgs, flagNoNxtArgVal)
 	flags = fs
-	rArgs = pa
+	remArgs = pa
 
 	if err != nil {
 		return fmt.Errorf("failed to parse the command line arguments; %w", err)

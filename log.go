@@ -25,6 +25,17 @@ func errorr(v interface{}) {
 	lvl("Error", v)
 }
 
+func errors(errs []error) {
+	for _, err := range errs {
+		errorr(err)
+	}
+}
+
+func multiErr(err error) {
+	errs := multierr.Errors(err)
+	errors(errs)
+}
+
 func fatalfc(code int, format string, v ...interface{}) {
 	errorf(format, v...)
 	os.Exit(code)
@@ -44,13 +55,11 @@ func fatal(v interface{}) {
 }
 
 func fatalErrs(errs []error) {
-	for _, err := range errs {
-		errorr(err)
-	}
+	errors(errs)
 	os.Exit(1)
 }
 
 func fatalMultiErr(err error) {
-	errs := multierr.Errors(err)
-	fatalErrs(errs)
+	multiErr(err)
+	os.Exit(1)
 }

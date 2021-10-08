@@ -42,6 +42,8 @@ func cmd() {
 			cmdLs()
 		case "find":
 			cmdFind()
+		case "join":
+			cmdJoin()
 		default:
 			cmdUnk(pArg0)
 		}
@@ -1030,6 +1032,69 @@ func cmdGrep() {
 
 // Usage: dirb ls [-d path]
 func cmdLs() {
+	if !checkLs() {
+		os.Exit(2)
+	}
+
+	fail := false
+	ns, err := dirr.all()
+	if err != nil {
+		fail = true
+		multiErr(err)
+	}
+
+	for _, n := range ns {
+		fmt.Println(n)
+	}
+
+	if fail {
+		os.Exit(1)
+	}
+}
+
+func checkLs() bool {
+	fail := false
+
+	// Check args
+	err := checkExactRemArgs(0)
+	if err != nil {
+		errorr(err)
+	}
+
+	// Check flags
+
+	d := "."
+	foundD := false
+
+	for i, f := range flags {
+		switch f.Name {
+		case "d", "directory":
+			if foundD {
+				// Already found
+				fail = true
+				errorr("multiple directory flags")
+			} else {
+				foundD = true
+				rmFlag(i)
+				if f.HasVal {
+					d = f.Val
+				} else {
+					fail = true
+					errorr("no value assigned to a \"directory\" flag")
+				}
+			}
+		default:
+			fail = true
+			errorf("unexpected flag %q", f.Name)
+		}
+	}
+
+	dirr = newDir(d)
+
+	return !fail
+}
+
+func cmdJoin() {
 	fatal("not yet implemented")
 }
 

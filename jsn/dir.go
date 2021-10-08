@@ -51,10 +51,6 @@ func (d *Dir) Up(name string, j interface{}) error {
 	return Up(path, j)
 }
 
-func (d *Dir) dir() string {
-	return string(*d.BinDir())
-}
-
 func (d *Dir) Path(name string) string {
-	return filepath.Join(d.dir(), name)
+	return filepath.Join(d.BinDir().Dir(), name)
 }

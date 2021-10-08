@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-var dir *jsn.Dir
+var dirr *dir
 var pretty = false
 
 // Usage: dirb command
@@ -54,7 +54,7 @@ func cmdInit() {
 		os.Exit(2)
 	}
 
-	d := dir.BinDir().Dir()
+	d := dirr.binDir().Dir()
 	err := os.MkdirAll(d, 0775)
 	if err != nil {
 		errorf("failed to create directory %q (or one of its parents); %v", d, err)
@@ -98,7 +98,7 @@ func checkInit() bool {
 		}
 	}
 
-	dir = jsn.NewDir(d)
+	dirr = newDir(d)
 
 	return !fail
 }
@@ -123,7 +123,7 @@ func cmdNew() {
 		fatalMultiErr(err)
 	}
 
-	name, err := newJsnGenName(dir, jo)
+	name, err := newJsnGenName(dirr, jo)
 	if err != nil {
 		// This command should never fail; unexpected error.
 		fatalMultiErr(err)
@@ -173,7 +173,7 @@ func checkNew() bool {
 		}
 	}
 
-	dir = jsn.NewDir(d)
+	dirr = newDir(d)
 
 	return !fail
 }
@@ -186,7 +186,7 @@ func cmdGet() {
 
 	name := remArgs[0]
 
-	jo, err := dir.GetObj(name)
+	jo, err := dirr.getObj(name)
 	if err != nil {
 		fatalMultiErr(err)
 	}
@@ -271,7 +271,7 @@ func checkGet() bool {
 		}
 	}
 
-	dir = jsn.NewDir(d)
+	dirr = newDir(d)
 	pretty = pl
 
 	return !fail
@@ -298,7 +298,7 @@ func cmdUp() {
 		fatalMultiErr(err)
 	}
 
-	err = dir.Up(name, jo)
+	err = dirr.up(name, jo)
 	if err != nil {
 		fatalMultiErr(err)
 	}
@@ -349,7 +349,7 @@ func checkUp() bool {
 		}
 	}
 
-	dir = jsn.NewDir(d)
+	dirr = newDir(d)
 
 	return !fail
 }
@@ -375,7 +375,7 @@ func cmdOver() {
 		fatalMultiErr(err)
 	}
 
-	err = dir.Over(name, jo)
+	err = dirr.over(name, jo)
 	if err != nil {
 		fatalMultiErr(err)
 	}
@@ -426,7 +426,7 @@ func checkOver() bool {
 		}
 	}
 
-	dir = jsn.NewDir(d)
+	dirr = newDir(d)
 
 	return !fail
 }
@@ -439,7 +439,7 @@ func cmdRm() {
 
 	name := remArgs[0]
 
-	err := dir.Rm(name)
+	err := dirr.rm(name)
 	if err != nil {
 		fatalMultiErr(err)
 	}
@@ -486,7 +486,7 @@ func checkRm() bool {
 		}
 	}
 
-	dir = jsn.NewDir(d)
+	dirr = newDir(d)
 
 	return !fail
 }
@@ -553,7 +553,7 @@ type jsnObjName struct {
 
 func find(lop, rop interface{}, op func(interface{}, interface{}) bool) {
 	fail := false
-	ns, err := dir.All()
+	ns, err := dirr.all()
 	if err != nil {
 		fail = true
 		multiErr(err)
@@ -561,7 +561,7 @@ func find(lop, rop interface{}, op func(interface{}, interface{}) bool) {
 
 	jons := make([]*jsnObjName, 0, len(ns))
 	for _, n := range ns {
-		jo, err := dir.GetObj(n)
+		jo, err := dirr.getObj(n)
 		if err != nil {
 			errorr(err)
 		} else {
@@ -799,10 +799,6 @@ func jsnEq(j1, j2 interface{}) bool {
 		return false
 	}
 
-	if j1 == j2 {
-		return true
-	}
-
 	switch x := j1.(type) {
 	case map[string]interface{}:
 		y := j2.(map[string]interface{})
@@ -1019,7 +1015,7 @@ func checkFind() bool {
 		}
 	}
 
-	dir = jsn.NewDir(d)
+	dirr = newDir(d)
 	pretty = pp
 	leftOperandIsFieldRef = l
 	rightOperandIsFieldRef = r

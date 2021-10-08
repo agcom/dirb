@@ -5,15 +5,14 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/agcom/dirb/bin"
-	"github.com/agcom/dirb/jsn"
 	"math"
 )
 
-func newJsnGenName(d *jsn.Dir, j interface{}) (string, error) {
+func newJsnGenName(d *dir, j interface{}) (string, error) {
 	return newJsnGenNameCustom(d, j, 7, 21, 10000)
 }
 
-func newJsnGenNameCustom(d *jsn.Dir, j interface{}, minNameLen, maxNameLen, triesPerLen int) (string, error) {
+func newJsnGenNameCustom(d *dir, j interface{}, minNameLen, maxNameLen, triesPerLen int) (string, error) {
 	if minNameLen > maxNameLen {
 		panic(fmt.Sprintf("the minimum name length %d is more than the maximum name length %d", minNameLen, maxNameLen))
 	} else if triesPerLen <= 0 {
@@ -25,7 +24,7 @@ func newJsnGenNameCustom(d *jsn.Dir, j interface{}, minNameLen, maxNameLen, trie
 		for i := 0; i < triesPerLen; i++ {
 			name = genNameLen(l)
 
-			err := d.New(name, j)
+			err := d.new(name, j)
 			if err != nil {
 				if _, ok := err.(*bin.ErrExists); ok {
 					continue

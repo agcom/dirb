@@ -1,7 +1,7 @@
 package jsn
 
 import (
-	"github.com/agcom/bs/bin"
+	"github.com/agcom/dirb/bin"
 	"path/filepath"
 )
 

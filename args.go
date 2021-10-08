@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/agcom/bs/sflag"
+	"github.com/agcom/dirb/sflag"
 	"os"
 )
 

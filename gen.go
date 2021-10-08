@@ -4,8 +4,8 @@ import (
 	cryptoRand "crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"github.com/agcom/bs/bin"
-	"github.com/agcom/bs/jsn"
+	"github.com/agcom/dirb/bin"
+	"github.com/agcom/dirb/jsn"
 	"math"
 )
 

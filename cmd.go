@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/agcom/bs/jsn"
+	"github.com/agcom/dirb/jsn"
 	"io"
 	"os"
 )
@@ -11,7 +11,7 @@ import (
 var dir *jsn.Dir
 var pretty = false
 
-// Usage: bs command
+// Usage: dirb command
 func cmd() {
 	if len(rArgs) == 0 {
 		cmdNon()
@@ -45,7 +45,7 @@ func cmd() {
 	}
 }
 
-// Usage: bs init [-d path]
+// Usage: dirb init [-d path]
 func cmdInit() {
 	if !checkInit() {
 		os.Exit(2)
@@ -100,7 +100,7 @@ func checkInit() bool {
 	return !fail
 }
 
-// Usage: bs create json [-d path]
+// Usage: dirb create json [-d path]
 func cmdNew() {
 	if !checkNew() {
 		os.Exit(2)
@@ -175,7 +175,7 @@ func checkNew() bool {
 	return !fail
 }
 
-// Usage: bs get name [-d path] [-p [bool]]
+// Usage: dirb get name [-d path] [-p [bool]]
 func cmdGet() {
 	if !checkGet() {
 		os.Exit(2)
@@ -274,7 +274,7 @@ func checkGet() bool {
 	return !fail
 }
 
-// Usage: bs up name json [-d path]
+// Usage: dirb up name json [-d path]
 func cmdUp() {
 	if !checkUp() {
 		os.Exit(2)
@@ -351,7 +351,7 @@ func checkUp() bool {
 	return !fail
 }
 
-// Usage: bs over name json [-d path]
+// Usage: dirb over name json [-d path]
 func cmdOver() {
 	if !checkOver() {
 		os.Exit(2)
@@ -428,7 +428,7 @@ func checkOver() bool {
 	return !fail
 }
 
-// Usage: bs rm name [-d path]
+// Usage: dirb rm name [-d path]
 func cmdRm() {
 	if !checkRm() {
 		os.Exit(2)
@@ -488,32 +488,32 @@ func checkRm() bool {
 	return !fail
 }
 
-// Usage: bs
+// Usage: dirb
 func cmdNon() {
 	fatalc(2, "no command given")
 }
 
-// Usage: bs help command
+// Usage: dirb help command
 func cmdHelp() {
 	fatal("not yet implemented")
 }
 
-// Usage: bs unknown-command
+// Usage: dirb unknown-command
 func cmdUnk(unkCmd string) {
 	fatalfc(2, "unknown command %q", unkCmd)
 }
 
-// Usage: bs grep regex [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
+// Usage: dirb grep regex [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
 func cmdGrep() {
 	fatal("not yet implemented")
 }
 
-// Usage: bs ls [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
+// Usage: dirb ls [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
 func cmdLs() {
 	fatal("not yet implemented")
 }
 
-// Usage: bs find l op r [-l [bool]] [-r [bool]] [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
+// Usage: dirb find l op r [-l [bool]] [-r [bool]] [-f [bool]] [-d path] [-s field] [{-a | -d} [bool]]
 func cmdFind() {
 	fatal("not yet implemented")
 }

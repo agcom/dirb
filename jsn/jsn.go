@@ -5,7 +5,7 @@ package jsn
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/agcom/bs/bin"
+	"github.com/agcom/dirb/bin"
 	"go.uber.org/multierr"
 	"io"
 )

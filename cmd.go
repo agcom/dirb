@@ -919,7 +919,7 @@ func checkFind() bool {
 	// Check args
 	err := checkExactRemArgs(3)
 	if err != nil {
-		fail = false
+		fail = true
 		errorr(err)
 	}
 
@@ -1058,6 +1058,7 @@ func checkLs() bool {
 	// Check args
 	err := checkExactRemArgs(0)
 	if err != nil {
+		fail = true
 		errorr(err)
 	}
 

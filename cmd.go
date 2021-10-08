@@ -30,7 +30,7 @@ func cmd() {
 			cmdGet()
 		case "update", "up", "patch", "pch":
 			cmdUp()
-		case "overwrite", "ow", "replace":
+		case "overwrite", "ow", "replace", "over":
 			cmdOver()
 		case "remove", "rm":
 			cmdRm()

@@ -44,10 +44,94 @@ func cmd() {
 			cmdFind()
 		case "join":
 			cmdJoin()
+		case "usage", "usg":
+			cmdUsg()
 		default:
 			cmdUnk(pArg0)
 		}
 	}
+}
+
+func cmdUsg() {
+	if !checkUsg() {
+		os.Exit(2)
+	}
+
+	cmd := remArgs[0]
+	remArgs = remArgs[1:]
+
+	usgs := ""
+
+	switch cmd {
+	case "init":
+		usgs = "dirb init [-d path]"
+	case "create", "new", "add":
+		usgs = "dirb create json [-d path]"
+	case "get", "read":
+		usgs = "dirb read name [-d path] [-p [bool]]"
+	case "update", "up", "patch", "pch":
+		usgs = "dirb update name json [-d path]"
+	case "overwrite", "ow", "replace", "over":
+		usgs = "dirb overwrite name json [-d path]"
+	case "remove", "rm":
+		usgs = "dirb rm name [-d path]"
+	case "help":
+		cmdHelp()
+	case "grep", "search":
+		cmdGrep()
+	case "ls", "list":
+		usgs = "dirb ls [-d path]"
+	case "find":
+		usgs = "dirb find l op r [-l [bool]] [-r [bool]] [-d path]"
+	case "join":
+		cmdUsg()
+	case "usage", "usg":
+		usgs = "dirb usage command"
+	default:
+		cmdUnk(cmd)
+	}
+
+	fmt.Printf("Usage: %s\n", usgs)
+}
+
+func checkUsg() bool {
+	fail := false
+
+	// Check args
+	err := errIfNotAtMostRemArgs(1)
+	if err != nil {
+		fail = true
+		errorr(err)
+	}
+
+	// Check flags
+
+	for _, f := range flags {
+		switch f.Name {
+		default:
+			fail = true
+			errorf("unexpected flag %q", f.Name)
+		}
+	}
+
+	return !fail
+}
+
+func errIfNotAtMostRemArgs(i int) error {
+	if i < 0 {
+		panic(fmt.Sprintf("negative number of args %d", i))
+	}
+
+	l := len(remArgs)
+	if l > i {
+		if l-i == 1 {
+			return fmt.Errorf("unexpected argument: %v", remArgs[len(remArgs)-1])
+		} else {
+			return fmt.Errorf("unexpected arguments: %s", strings.Join(remArgs[i:], " "))
+		}
+	}
+
+	return nil
 }
 
 // Usage: dirb init [-d path]

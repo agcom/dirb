@@ -1,8 +1,8 @@
 # DirB
 
-File-based approach; DirB is a very simple database written from scratch. Word "DirB" is a pun that mimic word "DB", mixed with an abbreviation of "Directory".
+File-based approach; DirB is a very simple database written from scratch. Word "DirB" is a pun that mimics "DB" (DataBase), mixed with an abbreviation of "Directory".
 
-This project was made as a homework for a **database design principles** college course.
+This project was made as a homework for a **databases design principles** college course.
 
 Currently, the only DirB's user interface is command line.
 

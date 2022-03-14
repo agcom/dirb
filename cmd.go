@@ -32,7 +32,7 @@ func cmd() {
 			cmdUp()
 		case "overwrite", "ow", "replace", "over":
 			cmdOver()
-		case "remove", "rm":
+		case "remove", "rm", "delete":
 			cmdRm()
 		case "help":
 			cmdHelp()
@@ -73,7 +73,7 @@ func cmdUsg() {
 		usgs = "dirb update name json [-d path]"
 	case "overwrite", "ow", "replace", "over":
 		usgs = "dirb overwrite name json [-d path]"
-	case "remove", "rm":
+	case "remove", "rm", "delete":
 		usgs = "dirb rm name [-d path]"
 	case "help":
 		cmdHelp()
